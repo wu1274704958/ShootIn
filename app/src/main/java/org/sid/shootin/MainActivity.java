@@ -2,6 +2,7 @@ package org.sid.shootin;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -11,14 +12,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.sid.shootin.communication.net.Util;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private Button bt_creat;
     private Button bt_join;
     private AlertDialog.Builder builder;
+    private AlertDialog alertDialog;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,35 +37,49 @@ public class MainActivity extends AppCompatActivity{
     View.OnClickListener oc = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            switch (view.getId()){
+            switch (view.getId()) {
                 case R.id.bt_creat:
+                    alertDialog = mydialog(MainActivity.this, 1);
+                    alertDialog.show();
+                    if (Util.openWifiAp(MainActivity.this, "ShootIn")) {
 
-                    if(Util.openWifiAp(MainActivity.this,"ShootIn")){
-                        dialog(MainActivity.this,1);
+                    } else {
+                        Toast.makeText(MainActivity.this, "热点开启失败，请手动开始", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.bt_join:
-                    dialog(MainActivity.this,0);
+                    alertDialog = mydialog(MainActivity.this, 0);
+                    alertDialog.show();
                     break;
             }
         }
     };
 
-    private void dialog(Context context,int i){
+    private AlertDialog mydialog(Context context, int i) {
         builder = new AlertDialog.Builder(context);
-        if(i == 1){
+        if (i == 1) {
             ProgressBar ba = new ProgressBar(context);
             ba.setIndeterminate(true);
             builder.setView(ba);
-            builder.create();
-            builder.show();
-        }else if(i == 0){
+            return builder.create();
+        } else {
             EditText et = new EditText(context);
             et.setLines(1);
             et.setWidth(200);
             builder.setView(et);
-            builder.create();
-            builder.show();
+            builder.setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+            return builder.create();
         }
     }
 }
