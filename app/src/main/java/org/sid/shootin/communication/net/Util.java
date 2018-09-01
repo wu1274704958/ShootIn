@@ -24,14 +24,7 @@ public class Util {
         return bytes;
     }
 
-    //    public static int ByteArrToInt(byte[] bys) {
-//        if (bys.length < 4)
-//            return 0;
-//        return Byte.toUnsignedInt(bys[0]) << 24
-//                | Byte.toUnsignedInt(bys[1]) << 16
-//                | Byte.toUnsignedInt(bys[2]) << 8
-//                | Byte.toUnsignedInt(bys[3]);
-//    }
+
     public static int ByteArrT2Int(byte[] bys) {
         int sum = 0;
         int end = 4;
@@ -54,7 +47,6 @@ public class Util {
             setWifiApEnabledForAndroidO(context, true);
             return true;
         }
-
 
         WifiConfiguration wifiConfiguration = new WifiConfiguration();
         wifiConfiguration.SSID = apName;
