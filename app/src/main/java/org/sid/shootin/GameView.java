@@ -56,6 +56,7 @@ public class GameView extends View{
     private Vec2 lastPos;
     private float zdgdc; //最低高度差
     private float zdkdc; //最低宽度差
+    private float ballWbf60; // 球宽度的百分之60
     public enum State{
         Pause,
         Playing,
@@ -133,6 +134,8 @@ public class GameView extends View{
 
         zdgdc = -handRect.top + bfx5;
         zdkdc = -handRect.left + bfx5;
+
+        ballWbf60 = (bfx5 * 2.0f) * 0.6f;
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
@@ -229,52 +232,43 @@ public class GameView extends View{
         if(temp_ball.bottom > temp_hand.top && temp_ball.top < temp_hand.bottom
                 && temp_ball.right > temp_hand.left && temp_ball.left < temp_hand.right)
         {
-//            paint_line.setColor(Color.YELLOW);
-//            canvas.drawRect(temp_ball,paint_line);
-//            canvas.drawRect(temp_hand,paint_line);
+            paint_line.setColor(Color.YELLOW);
+            canvas.drawRect(temp_ball,paint_line);
+            canvas.drawRect(temp_hand,paint_line);
 
             float gdc = temp_hand.top - temp_ball.top;
-            float kdc = temp_hand.left - temp_ball.left;
-            if(gdc > 0 && kdc > 0)
-            {
-                float t_gdc = temp_ball.bottom - temp_hand.top;
-                float t_kdc = temp_ball.right - temp_hand.left;
-                if(Math.abs(t_gdc - t_kdc) <= 0.001)
-                {
-                    bvpos.x = -bvpos.x;
-                    bvpos.y = -bvpos.y;
-                }
-                if(t_kdc > t_gdc)
-                {
-                    bvpos.x = -bvpos.x;
-                }else {
-                    bvpos.y = -bvpos.y;
-                }
+            //float kdc = temp_hand.left - temp_ball.left;
 
-                ball_pos.x -= t_kdc;
+            if(gdc > 0) {
+                float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x * 0.8f;
+                float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y * 0.8f;
+                bvpos.y = vy * 0.76f;
+                bvpos.x = vx * 0.76f;
+                float t_gdc = temp_ball.bottom - temp_hand.top;
                 ball_pos.y -= t_gdc;
-            }else {
+            }else if(gdc < 0 ){
+                float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x;
+                float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y;
+                bvpos.y = vy * 0.76f;
+                bvpos.x = vx * 0.76f;
                 float t_gdc = temp_hand.bottom - temp_ball.top;
-                float t_kdc = temp_hand.right - temp_ball.left;
-                if(Math.abs(t_gdc - t_kdc) <= 0.001)
-                {
-                    bvpos.x = -bvpos.x;
-                    bvpos.y = -bvpos.y;
-                }
-                if(t_kdc > t_gdc)
-                {
-                    bvpos.x = -bvpos.x;
-                }else {
-                    bvpos.y = -bvpos.y;
-                }
-                ball_pos.x += t_kdc;
                 ball_pos.y += t_gdc;
             }
+
+//            if (kdc > 0) {
+//                float t_kdc = temp_ball.right - temp_hand.left;
+//                float vx = Math.abs(-bvpos.x) > Math.abs(hvpos.x) ? -bvpos.x : hvpos.x;
+//                bvpos.x = vx * 0.76f;
+//                ball_pos.x -= t_kdc;
+//            } else if (kdc < 0) {
+//                float t_kdc = temp_hand.right - temp_ball.left;
+//                float vx = Math.abs(-bvpos.x) > Math.abs(hvpos.x) ? -bvpos.x : hvpos.x;
+//                bvpos.x = vx * 0.76f;
+//                ball_pos.x += t_kdc;
+//            }
         }
 
         paint_line.setColor(Color.RED);
-        //bvpos.x -= 0.001f;
-        //bvpos.y -= 0.001f;
     }
     static class MyHandler extends Handler{
         SoftReference<GameView> gv;
