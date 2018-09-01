@@ -54,8 +54,9 @@ public class GameView extends View{
     private Vec2 handPos;
     private Vec2 hvpos;
     private Vec2 lastPos;
-    private float zdgdc; //最低高度差
-    private float zdkdc; //最低宽度差
+    private float ballW; //球的宽度
+    private float handW; //handler 的宽度
+    private float hw_bwc; // handler 宽度 和 球的 宽度的差
     private float ballWbf60; // 球宽度的百分之60
     public enum State{
         Pause,
@@ -132,10 +133,12 @@ public class GameView extends View{
         handRect = new RectF(-bfx30 / 2.f,-bfy5 / 2.f,bfx30 / 2.f,bfy5 / 2.f );
         handPos = new Vec2(mid_x,bfy80);
 
-        zdgdc = -handRect.top + bfx5;
-        zdkdc = -handRect.left + bfx5;
+        ballW = bfx5 * 2.f;
+        handW = bfx30;
 
-        ballWbf60 = (bfx5 * 2.0f) * 0.6f;
+        hw_bwc = handW - ballW;
+
+        ballWbf60 = ballW * 0.6f;
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
@@ -237,35 +240,53 @@ public class GameView extends View{
             canvas.drawRect(temp_hand,paint_line);
 
             float gdc = temp_hand.top - temp_ball.top;
-            //float kdc = temp_hand.left - temp_ball.left;
+            float kdc = temp_hand.left - temp_ball.left;
 
-            if(gdc > 0) {
-                float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x * 0.8f;
-                float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y * 0.8f;
-                bvpos.y = vy * 0.76f;
-                bvpos.x = vx * 0.76f;
-                float t_gdc = temp_ball.bottom - temp_hand.top;
-                ball_pos.y -= t_gdc;
-            }else if(gdc < 0 ){
-                float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x;
-                float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y;
-                bvpos.y = vy * 0.76f;
-                bvpos.x = vx * 0.76f;
-                float t_gdc = temp_hand.bottom - temp_ball.top;
-                ball_pos.y += t_gdc;
+            float chgd = 0.f; // 重合高度
+            float chkd = 0.f; // ^
+
+            if(gdc > 0)
+                chgd = temp_ball.bottom - temp_hand.top;
+            else
+                chgd = temp_hand.bottom - temp_ball.top;
+
+            if(kdc > 0)
+                chkd = temp_ball.right - temp_hand.left;
+            else
+                chkd = temp_hand.right - temp_ball.left;
+
+
+
+            if(chgd > chkd) {
+
+                if (kdc > 0) {
+                    float t_kdc = temp_ball.right - temp_hand.left;
+                    float vx = Math.abs(-bvpos.x) > Math.abs(hvpos.x) ? -bvpos.x : hvpos.x;
+                    bvpos.x = vx * 0.76f;
+                    ball_pos.x -= t_kdc;
+                } else if (kdc < -hw_bwc) {
+                    float t_kdc = temp_hand.right - temp_ball.left;
+                    float vx = Math.abs(-bvpos.x) > Math.abs(hvpos.x) ? -bvpos.x : hvpos.x;
+                    bvpos.x = vx * 0.76f;
+                    ball_pos.x += t_kdc;
+                }
+            }else {
+                if (gdc > 0) {
+                    float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x * 0.8f;
+                    float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y * 0.8f;
+                    bvpos.y = vy * 0.76f;
+                    bvpos.x = vx * 0.76f;
+                    float t_gdc = temp_ball.bottom - temp_hand.top;
+                    ball_pos.y -= t_gdc;
+                } else if (gdc < 0) {
+                    float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x;
+                    float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y;
+                    bvpos.y = vy * 0.76f;
+                    bvpos.x = vx * 0.76f;
+                    float t_gdc = temp_hand.bottom - temp_ball.top;
+                    ball_pos.y += t_gdc;
+                }
             }
-
-//            if (kdc > 0) {
-//                float t_kdc = temp_ball.right - temp_hand.left;
-//                float vx = Math.abs(-bvpos.x) > Math.abs(hvpos.x) ? -bvpos.x : hvpos.x;
-//                bvpos.x = vx * 0.76f;
-//                ball_pos.x -= t_kdc;
-//            } else if (kdc < 0) {
-//                float t_kdc = temp_hand.right - temp_ball.left;
-//                float vx = Math.abs(-bvpos.x) > Math.abs(hvpos.x) ? -bvpos.x : hvpos.x;
-//                bvpos.x = vx * 0.76f;
-//                ball_pos.x += t_kdc;
-//            }
         }
 
         paint_line.setColor(Color.RED);
