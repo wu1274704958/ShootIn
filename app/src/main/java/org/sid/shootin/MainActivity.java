@@ -19,9 +19,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Converter.init(this);
+
         bt_creat = findViewById(R.id.bt_creat);
         bt_join = findViewById(R.id.bt_join);
         tv = findViewById(R.id.tv);
+
+        float res = Converter.getInstance().convertW(50.f);
+        bt_creat.setText(" " + res);
+        bt_join.setText(" " + Converter.getInstance().deConvertW(res));
 
         bt_creat.setOnClickListener(oc);
         bt_join.setOnClickListener(oc);
@@ -32,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.bt_creat:
-
+                    GameActivity.gotoPlay(MainActivity.this);
                     break;
                 case R.id.bt_join:
 
