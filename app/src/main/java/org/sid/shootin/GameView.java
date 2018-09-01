@@ -58,6 +58,7 @@ public class GameView extends View{
     private float handW; //handler 的宽度
     private float hw_bwc; // handler 宽度 和 球的 宽度的差
     private float ballWbf60; // 球宽度的百分之60
+    private float handMinY;
     public enum State{
         Pause,
         Playing,
@@ -139,6 +140,7 @@ public class GameView extends View{
         hw_bwc = handW - ballW;
 
         ballWbf60 = ballW * 0.6f;
+        handMinY = bfy30 + handRect.bottom;
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
@@ -356,6 +358,10 @@ public class GameView extends View{
 //                    Log.e(LT," " + hvpos.x + "  " + hvpos.y);
                     handPos.x += hvpos.x;
                     handPos.y += hvpos.y;
+                    if(handPos.y < handMinY) {
+                        handPos.y -= hvpos.y;
+                        hvpos.y = 0.f;
+                    }
 
                     lastPos.x = event.getX();
                     lastPos.y = event.getY();
