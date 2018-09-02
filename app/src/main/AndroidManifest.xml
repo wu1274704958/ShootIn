@@ -20,6 +20,9 @@
             android:name=".GameActivity"
             android:label="@string/title_activity_game"
             android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <!--<activity-->
+            <!--android:name=".communication.view.LoadRoomActivity"-->
+            <!--android:theme="@style/AppTheme.Dialog" />-->
     </application>
 
 </manifest>
