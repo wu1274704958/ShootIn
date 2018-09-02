@@ -1,10 +1,8 @@
 package org.sid.shootin;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -58,15 +56,11 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog mydialog(Context context, int i) {
         builder = new AlertDialog.Builder(context);
         if (i == 1) {
-            ProgressBar ba = new ProgressBar(context);
-            ba.setIndeterminate(true);
-            builder.setView(ba);
+            builder.setView(R.layout.activity_room_waiting);
             return builder.create();
-        } else {
-            EditText et = new EditText(context);
-            et.setLines(1);
-            et.setWidth(200);
-            builder.setView(et);
+        }else if(i == 0){
+
+            builder.setView(R.layout.activity_room_join);
             builder.setNeutralButton("取消", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -79,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+            return builder.create();
+        }else{
+
             return builder.create();
         }
     }
