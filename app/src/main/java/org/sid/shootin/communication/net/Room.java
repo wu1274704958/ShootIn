@@ -195,6 +195,10 @@ public class Room {
         public String addrs;
     }
 
+    public void setOnAddChildLin(OnAddChildLin onAddChildLin) {
+        this.onAddChildLin = onAddChildLin;
+    }
+
     public interface OnAddChildLin {
         public void onAdd(ChildInfo childInfo);
     }
