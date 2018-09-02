@@ -8,10 +8,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.sid.shootin.communication.net.Room;
 import org.sid.shootin.communication.net.Util;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,10 +36,13 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.bt_creat:
-                    alertDialog = mydialog(MainActivity.this, 1);
-                    alertDialog.show();
                     if (Util.openWifiAp(MainActivity.this, "ShootIn")) {
+                        alertDialog = mydialog(MainActivity.this, 1);
 
+                        //Room room = Room.createNewRoom("new","player1",8889);
+
+
+                        alertDialog.show();
                     } else {
                         Toast.makeText(MainActivity.this, "热点开启失败，请手动开始", Toast.LENGTH_SHORT).show();
                     }
@@ -56,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog mydialog(Context context, int i) {
         builder = new AlertDialog.Builder(context);
         if (i == 1) {
-            builder.setView(R.layout.activity_room_waiting);
+            builder.setView(R.layout.activity_room_create);
             return builder.create();
-        }else if(i == 0){
+        }else{
 
             builder.setView(R.layout.activity_room_join);
             builder.setNeutralButton("取消", new DialogInterface.OnClickListener() {
@@ -73,9 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-            return builder.create();
-        }else{
-
             return builder.create();
         }
     }
