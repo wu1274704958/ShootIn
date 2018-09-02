@@ -27,7 +27,7 @@ public class Room {
     private boolean isClose = true;
     private final int flag;
     private OnAddChildLin onAddChildLin;
-
+    private int stest = 0;
     private Room(int flag) {
         this.flag = flag;
         outhers = new ArrayList<>();
@@ -180,7 +180,6 @@ public class Room {
     public boolean isClose() {
         return isClose;
     }
-
     public void close() {
         if (isClose)
             return;
@@ -193,6 +192,10 @@ public class Room {
     public static class ChildInfo implements Serializable {
         public String name;
         public String addrs;
+    }
+
+    public void setOnAddChildLin(OnAddChildLin onAddChildLin) {
+        this.onAddChildLin = onAddChildLin;
     }
 
     public interface OnAddChildLin {
