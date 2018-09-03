@@ -114,7 +114,7 @@ public class GameView extends View{
         recver.setOnRevc(new Session.OnReceiveLin() {
             @Override
             public void onRevc(org.sid.shootin.communication.net.Message message) {
-                if(message.getContent() == null) {
+                if(message.getType() == org.sid.shootin.communication.net.Message.TYPE_NOTHING) {
                     handler.sendEmptyMessage(-1); //
                 }else{
                     String s = new String(message.getContent());
