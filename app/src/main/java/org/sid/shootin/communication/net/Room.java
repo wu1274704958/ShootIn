@@ -27,6 +27,7 @@ public class Room {
     private boolean isClose = true;
     private final int flag;
     private OnAddChildLin onAddChildLin;
+    private int stest = 0;
 
     private Room(int flag) {
         this.flag = flag;
@@ -40,7 +41,7 @@ public class Room {
 
     public static Room createNewRoom(String roomName, String playerName, int port) {
         synchronized (Room.class) {
-            if (!instance.isClose())
+            if (instance != null && !instance.isClose())
                 throw new RuntimeException("The room is not closed");
             instance = new Room(ROOM_FLAG_CREATE);
         }
@@ -54,7 +55,7 @@ public class Room {
 
     public static Room joinNewRoom(String playerName, String ip, int port) {
         synchronized (Room.class) {
-            if (!instance.isClose())
+            if (instance != null && !instance.isClose())
                 throw new RuntimeException("The room is not closed");
             instance = new Room(ROOM_FLAG_JOIN);
         }
@@ -193,6 +194,10 @@ public class Room {
     public static class ChildInfo implements Serializable {
         public String name;
         public String addrs;
+    }
+
+    public void setOnAddChildLin(OnAddChildLin onAddChildLin) {
+        this.onAddChildLin = onAddChildLin;
     }
 
     public interface OnAddChildLin {

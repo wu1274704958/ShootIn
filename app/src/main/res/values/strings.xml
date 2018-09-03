@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ShootIn</string>
+    <string name="loading">加载中</string>
     <string name="title_activity_game">GameActivity</string>
 </resources>
