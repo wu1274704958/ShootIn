@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Converter.init(this);
+
         setContentView(R.layout.activity_main);
         bt_creat = findViewById(R.id.bt_creat);
         bt_join = findViewById(R.id.bt_join);
