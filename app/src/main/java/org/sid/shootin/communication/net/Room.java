@@ -19,7 +19,7 @@ public class Room {
     public static final int
             ROOM_FLAG_CREATE = 2,
             ROOM_FLAG_JOIN = 4,
-            ROOM_FLAG_NOTHON = 0;
+            ROOM_FLAG_N = 0;
     private String roomName;
     private static Room instance;
     private ChildInfo me;
@@ -29,7 +29,7 @@ public class Room {
     private boolean isClose = true;
     private final int flag;
     private OnAddChildLin onAddChildLin;
-    private int stest = 0;
+    private Thread accpetThread;
 
     private Room(int flag) {
         this.flag = flag;
@@ -80,6 +80,10 @@ public class Room {
      * 开始等待
      */
     public void accept() {
+        if (accpetThread != null) {
+            close();
+            throw new RuntimeException("上一个动作未结束！");
+        }
         switch (flag) {
             case ROOM_FLAG_CREATE:
                 acceptChild();
@@ -94,7 +98,7 @@ public class Room {
      * 等待服务器响应
      */
     private void acceptServer() {
-        new Thread(new Runnable() {
+        (accpetThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -134,13 +138,15 @@ public class Room {
                     Log.e(getClass().getName() + "time out=======>", e.getMessage() + "");
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    accpetThread = null;
                 }
             }
-        }).start();
+        })).start();
     }
 
     private void acceptChild() {
-        new Thread(new Runnable() {
+        (accpetThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Socket socket = serverSession.waitChild();
@@ -170,9 +176,11 @@ public class Room {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    accpetThread = null;
                 }
             }
-        }).start();
+        })).start();
     }
 
     public ChildInfo getMe() {
@@ -195,12 +203,25 @@ public class Room {
         return isClose;
     }
 
+    //是否等待完成
+    public boolean isAccpetOk() {
+        return accpetThread == null;
+    }
+
     public void close() {
         if (isClose)
             return;
         Session session = getSession();
-        if (session != null)
-            session.close();
+        try {
+
+            if (session != null)
+                session.close();
+        } catch (Exception e) {
+            Log.e("=========", "session is close");
+        }
+        if (accpetThread != null)
+            accpetThread.interrupt();
+        accpetThread = null;
         this.isClose = true;
     }
 
