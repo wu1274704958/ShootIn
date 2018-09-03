@@ -67,7 +67,7 @@ public class Message implements Serializable {
     public static Message readMessage(InputStream inputStream) throws IOException {
         byte[] bs = new byte[4];
         if (inputStream.read(bs) < 4) {
-            return Message.createMessage(Message.TYPE_NOTHING, null, 0);
+            return Message.createMessage(Message.TYPE_NOTHING, new byte[0], 0);
         }
         int len = Util.ByteArrT2Int(bs);
         byte[] content = new byte[len];
@@ -90,6 +90,6 @@ public class Message implements Serializable {
         outputStream.write(length);
         outputStream.write(message.getType());
         outputStream.write(message.getContent());
-        Log.e("red=================>",new String(message.getContent()));
+        Log.e("write=================>",new String(message.getContent()));
     }
 }
