@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.bt_creat:
                     if (Util.openWifiAp(MainActivity.this, "ShootIn")) {
                         alertDialog = createdialog(MainActivity.this, "player1");
+                        alertDialog.setCanceledOnTouchOutside(false);
                         Room room = Room.createNewRoom("new", "player1", 8889);
                         room.setOnAddChildLin(new Room.OnAddChildLin() {
                             @Override
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.bt_join:
+                    if (!Util.openWifi(MainActivity.this)) {
+                        Toast.makeText(MainActivity.this, "WIFI开启失败，请手动开始", Toast.LENGTH_SHORT).show();
+                    }
                     alertDialog = joindialog(MainActivity.this);
                     alertDialog.show();
                     break;
@@ -98,15 +102,12 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String n = String.valueOf(et_name.getText());
                         String ip = String.valueOf(et_ip.getText());
-                        if (!Util.openWifi(MainActivity.this)) {
-                            Toast.makeText(MainActivity.this, "WIFI开启失败，请手动开始", Toast.LENGTH_SHORT).show();
-                        }
                         if (Util.linkWifi(MainActivity.this, "ShootIn", "")) {
                             Room room = Room.joinNewRoom(n, ip, 8889);
                             room.setOnAddChildLin(new Room.OnAddChildLin() {
                                 @Override
                                 public void onAdd(Room.ChildInfo childInfo) {
-
+                                    GameActivity.gotoPlay(MainActivity.this);
                                 }
                             });
                             room.accept();

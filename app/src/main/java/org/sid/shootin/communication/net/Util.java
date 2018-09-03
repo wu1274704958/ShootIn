@@ -49,7 +49,7 @@ public class Util {
         }
 
         WifiConfiguration wifiConfiguration = new WifiConfiguration();
-        wifiConfiguration.SSID = "\"" + apName + "\"";
+        wifiConfiguration.SSID = apName;
         wifiConfiguration.preSharedKey = null;
         wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         try {
