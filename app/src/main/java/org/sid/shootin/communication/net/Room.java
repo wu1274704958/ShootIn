@@ -100,7 +100,6 @@ public class Room {
                 try {
                     Log.e("===============", "start.accept");
                     Socket socket = childSession.linkServer().getChildSocket();
-                    int timout = socket.getSoTimeout();
                     socket.setSoTimeout(1000);
                     byte[] rep = ("{\"server\":\"ok\",\"roomName\":\"" + roomName + "\",\"playerName\":\"" + getMe().name + "\"}").getBytes();
                     Message respoMessage = Message.createMessage(Message.TYPE_STRING, rep, rep.length);
@@ -123,7 +122,7 @@ public class Room {
 
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(childInfo);
-                        socket.setSoTimeout(timout);
+                        socket.setSoTimeout(-1);
                     } catch (JSONException e) {
                         socket.close();
                         serverSession.close();

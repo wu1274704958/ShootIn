@@ -7,9 +7,9 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     private int len;
-    private int type;
+    private byte type;
     private byte[] content;
-    public static final int
+    public static final byte
             TYPE_STREAM = 2,
             TYPE_STRING = 1,
             TYPE_NOTHING = -1;
@@ -17,7 +17,7 @@ public class Message implements Serializable {
     public Message() {
     }
 
-    public static Message createMessage(int type, byte[] content, int len) {
+    public static Message createMessage(byte type, byte[] content, int len) {
         Message message = new Message();
         message.type = type;
         switch (message.type) {
@@ -50,7 +50,7 @@ public class Message implements Serializable {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(byte type) {
         this.type = type;
     }
 
@@ -69,7 +69,11 @@ public class Message implements Serializable {
         }
         int len = Util.ByteArrT2Int(bs);
         byte[] content = new byte[len];
-        int type = inputStream.read();
+        byte[] typebuf = new byte[1];
+
+        byte type = Message.TYPE_NOTHING;
+        if ( inputStream.read(typebuf)> 0)
+            type = typebuf[0];
         int count = 0;
         while (count < len - 1) {
             count += inputStream.read(content, count, content.length);
