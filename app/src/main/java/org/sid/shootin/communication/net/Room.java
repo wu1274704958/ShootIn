@@ -98,14 +98,15 @@ public class Room {
             @Override
             public void run() {
                 try {
-                    Log.e("===============", "start.accept");
+                    Log.e("===============", "start.accept.server");
                     Socket socket = childSession.linkServer().getChildSocket();
-                    socket.setSoTimeout(1000);
+                    socket.setSoTimeout(2000);
                     byte[] rep = ("{\"server\":\"ok\",\"roomName\":\"" + roomName + "\",\"playerName\":\"" + getMe().name + "\"}").getBytes();
                     Message respoMessage = Message.createMessage(Message.TYPE_STRING, rep, rep.length);
                     Message.writeMessage(socket.getOutputStream(), respoMessage);
 
                     Message message = Message.readMessage(socket.getInputStream());
+                    socket.setSoTimeout(0);
                     if (message == null || message.getType() != Message.TYPE_STRING) {
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(null);
@@ -122,7 +123,7 @@ public class Room {
 
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(childInfo);
-                        socket.setSoTimeout(0);
+
                     } catch (JSONException e) {
                         socket.close();
                         serverSession.close();
@@ -130,7 +131,7 @@ public class Room {
                 } catch (SocketTimeoutException e) {
                     if (onAddChildLin != null)
                         onAddChildLin.onAdd(null);
-                    Log.e(getClass().getName() + "=======>", e.getCause().toString());
+                    Log.e(getClass().getName() + "time out=======>", e.getMessage() + "");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -144,7 +145,9 @@ public class Room {
             public void run() {
                 Socket socket = serverSession.waitChild();
                 try {
+                    socket.setSoTimeout(2000);
                     Message message = Message.readMessage(socket.getInputStream());
+                    socket.setSoTimeout(0);
                     if (message == null || message.getType() != Message.TYPE_STRING)
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(null);

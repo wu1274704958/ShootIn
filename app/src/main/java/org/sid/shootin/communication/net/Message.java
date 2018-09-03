@@ -1,5 +1,7 @@
 package org.sid.shootin.communication.net;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -72,20 +74,22 @@ public class Message implements Serializable {
         byte[] typebuf = new byte[1];
 
         byte type = Message.TYPE_NOTHING;
-        if ( inputStream.read(typebuf)> 0)
+        if (inputStream.read(typebuf) > 0)
             type = typebuf[0];
         int count = 0;
-        while (count < len - 1) {
-            count += inputStream.read(content, count, content.length);
+        while (count < len) {
+            count += inputStream.read(content, count, len - count);
         }
+        Log.e("red=================>",new String(content));
         return Message.createMessage(type, content, content.length);
     }
 
     public static void writeMessage(OutputStream outputStream, Message message) throws IOException {
-        int count = message.len + 1;
+        int count = message.len;
         byte[] length = Util.IntToByteArr(count);
         outputStream.write(length);
         outputStream.write(message.getType());
         outputStream.write(message.getContent());
+        Log.e("red=================>",new String(message.getContent()));
     }
 }
