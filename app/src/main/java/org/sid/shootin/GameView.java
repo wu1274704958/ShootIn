@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import org.sid.shootin.communication.net.Room;
 import org.sid.shootin.communication.net.Session;
@@ -23,6 +24,11 @@ import java.util.TimerTask;
 public class GameView extends View{
     private static String LT = "GV";
     private static final float BALL_X = 0.1f;
+
+    private static final int A_WHAT = 2;
+    private static final int B_WHAT = 3;
+    private static final int C_WHAT = 4;
+    private static final int D_WHAT = 5;
 
     private int Width;
     private int Height;
@@ -70,6 +76,7 @@ public class GameView extends View{
     private float begin_text_size;
     private float score_text_size;
     private Room room;
+    private Session recver;
 
     public enum State{
         Pause,
@@ -102,15 +109,39 @@ public class GameView extends View{
 
         inThere = isFZ;
 
-        Session session = room.getSession();
-        session.setOnRevc(new Session.OnReceiveLin() {
+        recver = room.getSession();
+        recver.setOnRevc(new Session.OnReceiveLin() {
             @Override
             public void onRevc(org.sid.shootin.communication.net.Message message) {
-                String s = new String(message.getContent());
-                log("onRecv " + s);
+                if(message.getContent() == null) {
+                    handler.sendEmptyMessage(-1); //
+                }else{
+                    String s = new String(message.getContent());
+                    log("onRecv " + s);
+                    switch (s.charAt(0))
+                    {
+                        case 'A':
+                        {
+                            String[] ss = s.split("#");
+                            Vec2 v = Converter.getInstance().deConvert(new Vec2(Float.parseFloat(ss[1]),Float.parseFloat(ss[2])));
+                            float x = Converter.getInstance().deConvertW(Float.parseFloat(ss[3]));
+                            Message m = new Message();
+                            m.what = A_WHAT;
+                            m.obj = new AInfo(v,x);
+                            handler.sendMessage(m);
+                        }
+                            break;
+                        case 'B':
+                            break;
+                        case 'C':
+                            break;
+                        case 'D':
+                            break;
+                    }
+                }
             }
         });
-        session.startRecv();
+        recver.startRecv();
 
         bfy30 = (float)Height * 0.3f;
         bfy90 = (float)Height * 0.9f;
@@ -366,6 +397,27 @@ public class GameView extends View{
                     }
                 }
                 break;
+                case -1:
+                {
+                    GameView v = gv.get();
+                    if(v != null)
+                    {
+                        v.timer.cancel();
+                        Toast.makeText(v.getContext(),"对方退出！",Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+                case A_WHAT: {
+                    GameView v = gv.get();
+                    if (v != null) {
+                        AInfo info = (AInfo) msg.obj;
+                        v.inThere = true;
+                        v.ball_pos.x = info.x;
+                        v.ball_pos.y = -v.bfx5 + 1;
+                        v.bvpos = info.v;
+                    }
+                }
+                    break;
             }
         }
     }
@@ -505,5 +557,15 @@ public class GameView extends View{
 
     static void log(String s){
         Log.e(LT,s);
+    }
+}
+
+class AInfo{
+    public Vec2 v;
+    public float x;
+
+    public AInfo(Vec2 v, float x) {
+        this.v = v;
+        this.x = x;
     }
 }
