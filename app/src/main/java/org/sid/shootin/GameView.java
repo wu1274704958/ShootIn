@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -132,10 +133,21 @@ public class GameView extends View{
                         }
                             break;
                         case 'B':
+                            handler.sendEmptyMessage(B_WHAT);
                             break;
                         case 'C':
+                            handler.sendEmptyMessage(C_WHAT);
                             break;
-                        case 'D':
+                        case 'D': {
+                            String[] ss = s.split("#");
+                            DInfo info = new DInfo(Integer.parseInt(ss[1]),
+                                    Integer.parseInt(ss[3]),
+                                    Integer.parseInt(ss[2]));
+                            Message m = new Message();
+                            m.what = D_WHAT;
+                            m.obj = info;
+                            handler.sendMessage(m);
+                        }
                             break;
                     }
                 }
@@ -418,6 +430,36 @@ public class GameView extends View{
                     }
                 }
                     break;
+                case B_WHAT:
+                {
+                    GameView v = gv.get();
+                    if (v != null) {
+                        v.state = State.Pause;
+                    }
+                }
+                    break;
+                case C_WHAT:
+                {
+                    GameView v = gv.get();
+                    if (v != null) {
+                        v.state = State.Playing;
+                    }
+                }
+                break;
+                case D_WHAT:
+                {
+                    GameView v = gv.get();
+                    if (v != null) {
+                        DInfo info = (DInfo)msg.obj;
+                        if(info.inThere == 1)
+                            v.inThere = true;
+                        v.score_me = info.me_score;
+                        v.score_his = info.his_score;
+                        if(v.score_me == 3)
+                            v.state = State.Finish;
+                    }
+                }
+                break;
             }
         }
     }
@@ -567,5 +609,15 @@ class AInfo{
     public AInfo(Vec2 v, float x) {
         this.v = v;
         this.x = x;
+    }
+}
+
+class DInfo{
+    public int inThere,me_score,his_score;
+
+    public DInfo(int inThere, int me_score, int his_score) {
+        this.inThere = inThere;
+        this.me_score = me_score;
+        this.his_score = his_score;
     }
 }
