@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText et_name;
     private EditText et_ip;
     private ProgressBar pb;
+    private View gotoplayButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         bt_join.setOnClickListener(oc);
         bt_creat.setOnClickListener(oc);
+
     }
 
     View.OnClickListener oc = new View.OnClickListener() {
@@ -47,19 +49,13 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.bt_creat:
                     if (Util.openWifiAp(MainActivity.this, "ShootIn")) {
                         alertDialog = createdialog(MainActivity.this, "player1");
-                        alertDialog.setCanceledOnTouchOutside(false);
                         Room room = Room.createNewRoom("new", "player1", 8889);
                         room.setOnAddChildLin(new Room.OnAddChildLin() {
                             @Override
                             public void onAdd(Room.ChildInfo childInfo) {
                                 your_name.setText(childInfo.name);
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (Exception e) {
-
-                                }
-                                GameActivity.gotoPlay(MainActivity.this);
-                                finish();
+                                if (gotoplayButton!=null)
+                                    gotoplayButton.setVisibility(View.VISIBLE);
                             }
                         });
 
@@ -86,7 +82,24 @@ public class MainActivity extends AppCompatActivity {
         your_name = v.findViewById(R.id.your_name);
         my_name.setText(myname);
         builder.setView(v);
-        return builder.create();
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        (gotoplayButton = v.findViewById(R.id.gotoPlay))
+                .setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GameActivity.gotoPlay(MainActivity.this);
+                finish();
+            }
+        });
+        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                Room.getInstance().close();
+            }
+        });
+        return alertDialog;
 
     }
 
