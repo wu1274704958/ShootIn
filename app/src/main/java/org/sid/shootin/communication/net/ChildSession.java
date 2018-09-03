@@ -64,15 +64,11 @@ public class ChildSession extends Session implements Runnable {
     }
 
     @Override
-    public void close() {
-        try {
-            if (this.childSocket != null)
-                if (!this.childSocket.isClosed()) {
-                    this.childSocket.close();
-                }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void close() throws IOException {
+        if (this.childSocket != null)
+            if (!this.childSocket.isClosed()) {
+                this.childSocket.close();
+            }
     }
 
     public Socket getChildSocket() {
@@ -80,8 +76,12 @@ public class ChildSession extends Session implements Runnable {
     }
 
     public void setSocket(Socket socket) {
-        this.close();
-        this.childSocket = socket;
+        try {
+            this.close();
+            this.childSocket = socket;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

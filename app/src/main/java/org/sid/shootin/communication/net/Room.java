@@ -212,8 +212,13 @@ public class Room {
         if (isClose)
             return;
         Session session = getSession();
-        if (session != null)
-            session.close();
+        try {
+
+            if (session != null)
+                session.close();
+        } catch (Exception e) {
+            Log.e("=========", "session is close");
+        }
         if (accpetThread != null)
             accpetThread.interrupt();
         accpetThread = null;

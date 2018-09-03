@@ -33,4 +33,10 @@ public class ServerSession extends ChildSession {
         return null;
     }
 
+    @Override
+    public void close() throws IOException {
+        super.close();
+        if (this.serverSocket != null)
+            this.serverSocket.close();
+    }
 }
