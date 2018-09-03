@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.bt_join:
-
+                    alertDialog = joindialog(MainActivity.this);
+                    alertDialog.show();
                     break;
             }
         }
@@ -94,18 +96,38 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        String n = String.valueOf(et_name.getText());
+                        String ip = String.valueOf(et_ip.getText());
+                        if (!Util.openWifi(MainActivity.this)) {
+                            Toast.makeText(MainActivity.this, "WIFI开启失败，请手动开始", Toast.LENGTH_SHORT).show();
+                        }
+                        if (Util.linkWifi(MainActivity.this, "ShootIn", "")) {
+                            Room room = Room.joinNewRoom(n, ip, 8889);
+                            room.setOnAddChildLin(new Room.OnAddChildLin() {
+                                @Override
+                                public void onAdd(Room.ChildInfo childInfo) {
+
+                                }
+                            });
+                            room.accept();
+                        } else {
+                            Toast.makeText(MainActivity.this, "WIFI连接失败，请手动连接", Toast.LENGTH_SHORT).show();
+                        }
+
 
                     }
                 })
                 .setNeutralButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.cancel();
+
+                        dialogInterface.cancel();
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
+
 
                     }
                 });

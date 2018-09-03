@@ -20,7 +20,6 @@
         android:typeface="normal"
         android:gravity="center"
         android:maxLength="20"
-        android:inputType="number"
         android:imeOptions="actionDone"
         android:textAlignment="inherit"/>
     <EditText
@@ -32,7 +31,6 @@
         android:typeface="normal"
         android:gravity="center"
         android:maxLength="20"
-        android:inputType="number"
         android:imeOptions="actionDone"
         android:textAlignment="inherit"/>
 </LinearLayout>

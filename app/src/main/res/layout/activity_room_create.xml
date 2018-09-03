@@ -75,7 +75,7 @@
             android:maxLines="1"
             android:layout_weight="2"
             android:gravity="center"
-            android:text="你的名字"
+            android:text="正在连接"
             android:textSize="35sp" />
 
     </LinearLayout>
