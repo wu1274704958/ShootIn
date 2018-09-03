@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import org.sid.shootin.communication.net.Room;
+import org.sid.shootin.communication.net.Session;
 
 import java.lang.ref.SoftReference;
 import java.util.Timer;
@@ -100,6 +101,15 @@ public class GameView extends View{
             isFZ = false;
 
         inThere = isFZ;
+
+        Session session = room.getSession();
+        session.setOnRevc(new Session.OnReceiveLin() {
+            @Override
+            public void onRevc(org.sid.shootin.communication.net.Message message) {
+                String s = new String(message.getContent());
+                log("onRecv " + s);
+            }
+        });
 
         bfy30 = (float)Height * 0.3f;
         bfy90 = (float)Height * 0.9f;
@@ -192,11 +202,11 @@ public class GameView extends View{
             case Playing:
                 canvas.drawLine(0.f,bfy30,(float)Width,bfy30,paint_line);
                 canvas.drawLine(0.f,bfy90,(float)Width,bfy90,paint_line);
-                if(inThere) {
+                if(inThere)
                     drawBall(canvas);
-                    drawHand(canvas);
+                drawHand(canvas);
+                if(inThere)
                     step(canvas);
-                }
                 break;
             case Pause:
                 drawPause(canvas);
@@ -418,16 +428,57 @@ public class GameView extends View{
     }
     public void sendBallOut()
     {
+        Vec2 v = Converter.getInstance().convert(new Vec2(-bvpos.x,-bvpos.y));
+        float x = Converter.getInstance().convertW(ball_pos.x);
+        Session session = room.getSession();
+        String s = "A#"+v.x + "#" + v.y + "#" + x;
 
+        session.sendMessage(
+                org.sid.shootin.communication.net.Message.createMessage(
+                        org.sid.shootin.communication.net.Message.TYPE_STRING,
+                        s.getBytes(),0));
+
+        log("sendBallOut() " +s);
     }
     public void sendPause(){
-
+        String s = "B";
+        Session session = room.getSession();
+        session.sendMessage(
+                org.sid.shootin.communication.net.Message.createMessage(
+                        org.sid.shootin.communication.net.Message.TYPE_STRING,
+                        s.getBytes(),0
+                ));
+        log("sendPause() " +s);
     }
     public void sendPlay(){
+        String s = "C";
+        Session session = room.getSession();
+        session.sendMessage(
+                org.sid.shootin.communication.net.Message.createMessage(
+                        org.sid.shootin.communication.net.Message.TYPE_STRING,
+                        s.getBytes(),0
+                ));
 
+        log("sendPlay() " + s);
     }
     public void sendScoreChange(){
+        StringBuffer sb = new StringBuffer();
+        sb.append("D#");
+        if(inThere)
+            sb.append("0");
+        else
+            sb.append("1");
+        sb.append("#");
+        sb.append(score_me+"#"+score_his);
+        String s = sb.toString();
+        Session session = room.getSession();
+        session.sendMessage(
+                org.sid.shootin.communication.net.Message.createMessage(
+                        org.sid.shootin.communication.net.Message.TYPE_STRING,
+                        s.getBytes(),0
+                ));
 
+        log("sendScoreChange() " +s);
     }
     public void resetBall()
     {
@@ -449,5 +500,9 @@ public class GameView extends View{
     public void destroy()
     {
         timer.cancel();
+    }
+
+    static void log(String s){
+        Log.e(LT,s);
     }
 }
