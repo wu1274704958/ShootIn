@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import org.sid.shootin.communication.net.Room;
+
 import java.lang.ref.SoftReference;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,7 +49,7 @@ public class GameView extends View{
     private boolean isFZ;
     private RectF beginRect;
     private RectF beginRect_pressed;
-    private State state = State.Finish;
+    private State state = State.Pause;
     private Paint paint_begin;
     private boolean beginIsPressed = false;
     private boolean isHand = false;
@@ -66,6 +68,7 @@ public class GameView extends View{
     private Vec2 s_his_pos;
     private float begin_text_size;
     private float score_text_size;
+    private Room room;
 
     public enum State{
         Pause,
@@ -90,7 +93,12 @@ public class GameView extends View{
         Width = Converter.getInstance().getW();
         Height = Converter.getInstance().getH();
 
-        isFZ = true;
+        room = Room.getInstance();
+        if( room.getFlag() == Room.ROOM_FLAG_CREATE)
+            isFZ = true;
+        else
+            isFZ = false;
+
         inThere = isFZ;
 
         bfy30 = (float)Height * 0.3f;
@@ -246,10 +254,22 @@ public class GameView extends View{
             bvpos.x = -bvpos.x;
         if(bvpos.x <= 0 && ball_pos.x < bfx5)
             bvpos.x = -bvpos.x;
-        if(bvpos.y >= 0 && ball_pos.y + bfx5 > Height)
-            bvpos.y = -bvpos.y;
-        if(bvpos.y <= 0 && ball_pos.y < bfx5)
-            bvpos.y = -bvpos.y;
+        if(ball_pos.y + bfx5 > Height){
+            score_his++;
+            inThere = false;
+            sendScoreChange();
+            if(score_his == 3)
+            {
+                state = State.Finish;
+            }
+            resetBall();
+        }
+
+        if(ball_pos.y < -bfx5 ) {
+            sendBallOut();
+            resetBall();
+            inThere = false;
+        }
 
         RectF temp_ball = new RectF(ball_pos.x - bfx5,ball_pos.y - bfx5 ,
                 ball_pos.x + bfx5 , ball_pos.y + bfx5);
@@ -365,6 +385,7 @@ public class GameView extends View{
                         beginIsPressed = false;
                         Log.e(LT,"Playing");
                         state = State.Playing;
+                        sendPlay();
                     }
                 }else if(state == State.Playing)
                 {
@@ -395,6 +416,26 @@ public class GameView extends View{
         }
         return true;
     }
+    public void sendBallOut()
+    {
+
+    }
+    public void sendPause(){
+
+    }
+    public void sendPlay(){
+
+    }
+    public void sendScoreChange(){
+
+    }
+    public void resetBall()
+    {
+        ball_pos.x = mid_x;
+        ball_pos.y = mid_y;
+        bvpos.x = 0.f;
+        bvpos.y = 0.f;
+    }
 
     public void stop()
     {
@@ -403,6 +444,7 @@ public class GameView extends View{
     public void pause()
     {
         state = State.Pause;
+        sendPause();
     }
     public void destroy()
     {
