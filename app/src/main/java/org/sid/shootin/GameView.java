@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import org.sid.shootin.communication.net.Room;
+
 import java.lang.ref.SoftReference;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,6 +35,7 @@ public class GameView extends View{
     private float mid_x;
     private float mid_y;
     private float bfy5;
+    private float bfy40;
     private Paint paint_line;
     private Paint paint_ball;
     private Vec2 ball_pos;
@@ -46,7 +49,7 @@ public class GameView extends View{
     private boolean isFZ;
     private RectF beginRect;
     private RectF beginRect_pressed;
-    State state = State.Pause;
+    private State state = State.Pause;
     private Paint paint_begin;
     private boolean beginIsPressed = false;
     private boolean isHand = false;
@@ -59,6 +62,14 @@ public class GameView extends View{
     private float hw_bwc; // handler 宽度 和 球的 宽度的差
     private float ballWbf60; // 球宽度的百分之60
     private float handMinY;
+    private int score_me = 0;
+    private int score_his = 0;
+    private Vec2 s_me_pos;
+    private Vec2 s_his_pos;
+    private float begin_text_size;
+    private float score_text_size;
+    private Room room;
+
     public enum State{
         Pause,
         Playing,
@@ -82,7 +93,12 @@ public class GameView extends View{
         Width = Converter.getInstance().getW();
         Height = Converter.getInstance().getH();
 
-        isFZ = true;
+        room = Room.getInstance();
+        if( room.getFlag() == Room.ROOM_FLAG_CREATE)
+            isFZ = true;
+        else
+            isFZ = false;
+
         inThere = isFZ;
 
         bfy30 = (float)Height * 0.3f;
@@ -93,6 +109,7 @@ public class GameView extends View{
         bfx30 = (float)Width * 0.3f;
         bfy5 = (float)Height * 0.05f;
         bfy80 = (float)Height * 0.8f;
+        bfy40 = (float)Height * 0.4f;
         float bx = (Width - bfx66) / 2.f;
         float by = (Height - bfy22) / 2.f;
         mid_x = Width / 2.0f;
@@ -123,10 +140,10 @@ public class GameView extends View{
         paint_begin.setColor(0xFF00aaaa);
         paint_begin.setStyle(Paint.Style.FILL);
         paint_begin.setTextAlign(Paint.Align.CENTER);
-        float begin_height = (bfx66 * 0.7f) / 4.0f;
-        paint_begin.setTextSize( begin_height );
+        begin_text_size = (bfx66 * 0.7f) / 4.0f;
+        paint_begin.setTextSize( begin_text_size );
         Paint.FontMetrics fm = paint_begin.getFontMetrics();
-        Log.e(LT, " " + begin_height );
+        //Log.e(LT, " " + begin_text_size );
         //Log.e(LT,""+ fm.descent + "  " + fm.ascent + "   " + fm.bottom + "  " + fm.top + " " + fm.leading);
         begin_pos = new Vec2(mid_x,mid_y + fm.descent);
         bvpos = new Vec2(1.2f,2.0f);
@@ -141,6 +158,15 @@ public class GameView extends View{
 
         ballWbf60 = ballW * 0.6f;
         handMinY = bfy30 + handRect.bottom;
+
+        score_text_size = bfx30;
+
+        paint_begin.setTextSize(score_text_size);
+        fm = paint_begin.getFontMetrics();
+        Log.e(LT,""+ fm.descent + "  " + fm.ascent + "   " + fm.bottom + "  " + fm.top + " " + fm.leading);
+        s_me_pos = new Vec2(Width * 0.25f, bfy40 + fm.descent);
+        s_his_pos = new Vec2(Width * 0.75f , bfy40 + fm.descent);
+
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
@@ -176,10 +202,17 @@ public class GameView extends View{
                 drawPause(canvas);
                 break;
             case Finish:
-
+                drawFinish(canvas);
                 break;
         }
         lastTimeTick = System.currentTimeMillis();
+    }
+
+    void drawFinish(Canvas canvas)
+    {
+        paint_begin.setTextSize(score_text_size);
+        canvas.drawText(""+score_me,s_me_pos.x,s_me_pos.y,paint_begin);
+        canvas.drawText(""+score_his,s_his_pos.x,s_his_pos.y,paint_begin);
     }
 
     void drawBall(Canvas canvas)
@@ -206,7 +239,7 @@ public class GameView extends View{
         else
             canvas.drawRoundRect(beginRect_pressed,20,20,paint_begin);
         //paint_begin.setStyle(Paint.Style.STROKE);
-
+        paint_begin.setTextSize( begin_text_size );
         canvas.drawText("开始游戏",begin_pos.x,begin_pos.y,paint_begin);
     }
 
@@ -221,10 +254,22 @@ public class GameView extends View{
             bvpos.x = -bvpos.x;
         if(bvpos.x <= 0 && ball_pos.x < bfx5)
             bvpos.x = -bvpos.x;
-        if(bvpos.y >= 0 && ball_pos.y + bfx5 > Height)
-            bvpos.y = -bvpos.y;
-        if(bvpos.y <= 0 && ball_pos.y < bfx5)
-            bvpos.y = -bvpos.y;
+        if(ball_pos.y + bfx5 > Height){
+            score_his++;
+            inThere = false;
+            sendScoreChange();
+            if(score_his == 3)
+            {
+                state = State.Finish;
+            }
+            resetBall();
+        }
+
+        if(ball_pos.y < -bfx5 ) {
+            sendBallOut();
+            resetBall();
+            inThere = false;
+        }
 
         RectF temp_ball = new RectF(ball_pos.x - bfx5,ball_pos.y - bfx5 ,
                 ball_pos.x + bfx5 , ball_pos.y + bfx5);
@@ -340,6 +385,7 @@ public class GameView extends View{
                         beginIsPressed = false;
                         Log.e(LT,"Playing");
                         state = State.Playing;
+                        sendPlay();
                     }
                 }else if(state == State.Playing)
                 {
@@ -370,6 +416,26 @@ public class GameView extends View{
         }
         return true;
     }
+    public void sendBallOut()
+    {
+
+    }
+    public void sendPause(){
+
+    }
+    public void sendPlay(){
+
+    }
+    public void sendScoreChange(){
+
+    }
+    public void resetBall()
+    {
+        ball_pos.x = mid_x;
+        ball_pos.y = mid_y;
+        bvpos.x = 0.f;
+        bvpos.y = 0.f;
+    }
 
     public void stop()
     {
@@ -378,6 +444,7 @@ public class GameView extends View{
     public void pause()
     {
         state = State.Pause;
+        sendPause();
     }
     public void destroy()
     {
