@@ -30,10 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView my_name;
     private TextView your_name;
     private EditText et_name;
-    private EditText et_ip;
-    private ProgressBar pb;
     private View gotoplayButton;
     Handler handler;
+    private Room room;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.bt_creat:
                     if (Util.openWifiAp(MainActivity.this, "ShootIn")) {
                         alertDialog = createdialog(MainActivity.this, "player1");
-                        Room room = Room.createNewRoom("new", "player1", 8889);
+                        final Room room = Room.createNewRoom("new", "player1", 8889);
                         room.setOnAddChildLin(new Room.OnAddChildLin() {
                             @Override
                             public void onAdd(final Room.ChildInfo childInfo) {
@@ -69,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
 
+                            }
+                        });
+                        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                room.close();
                             }
                         });
                         room.accept();
@@ -120,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
         builder = new AlertDialog.Builder(context);
         View v = View.inflate(context, R.layout.activity_room_join, null);
         et_name = v.findViewById(R.id.et_name);
-        et_ip = v.findViewById(R.id.et_ip);
-        pb = v.findViewById(R.id.pb);
         builder.setView(v)
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
@@ -133,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("=================", intToIp(info.serverAddress));
 
                         if (Util.linkWifi(MainActivity.this, "ShootIn", "")) {
-                            Room room = Room.joinNewRoom(n, ip, 8889);
+                            room = Room.joinNewRoom(n, ip, 8889);
                             room.setOnAddChildLin(new Room.OnAddChildLin() {
                                 @Override
                                 public void onAdd(final Room.ChildInfo childInfo) {
@@ -147,16 +150,12 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         }
                                     });
-
-
                                 }
                             });
                             room.accept();
                         } else {
                             Toast.makeText(MainActivity.this, "WIFI连接失败，请手动连接", Toast.LENGTH_SHORT).show();
                         }
-
-
                     }
                 })
                 .setNeutralButton("取消", new DialogInterface.OnClickListener() {
@@ -169,8 +168,10 @@ public class MainActivity extends AppCompatActivity {
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-
-
+                        if(room != null) {
+                            room.close();
+                            room = null;
+                        }
                     }
                 });
         return builder.create();

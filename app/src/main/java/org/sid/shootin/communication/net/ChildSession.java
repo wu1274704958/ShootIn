@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChildSession extends Session implements Runnable {
     private String targetIp;
@@ -13,11 +15,14 @@ public class ChildSession extends Session implements Runnable {
     private Socket childSocket;
     private Thread theThred;
     private OutputStream theOutput;
+    private final Object lock = new Object();
+    private ExecutorService executorService;
 
     public ChildSession(String targetIp, int targetPort) {
         this.targetIp = targetIp;
         this.targetPort = targetPort;
         theThred = new Thread(this);
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     public ChildSession linkServer() throws IOException {
@@ -34,39 +39,36 @@ public class ChildSession extends Session implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Thread(new Runnable() {
+        executorService.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    synchronized (ChildSession.this.theOutput) {
+                    synchronized (lock) {
                         Message.writeMessage(ChildSession.this.theOutput, message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
     @Override
     public void startRecv() {
         if (this.theThred != null) {
             theThred.interrupt();
+            theThred = null;
         }
         theThred = new Thread(this);
         theThred.start();
     }
 
     @Override
-    public void close() {
-        try {
-            if (this.childSocket != null)
-                if (!this.childSocket.isClosed()) {
-                    this.childSocket.close();
-                }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void close() throws IOException {
+        if (this.childSocket != null)
+            if (!this.childSocket.isClosed()) {
+                this.childSocket.close();
+            }
     }
 
     public Socket getChildSocket() {
@@ -74,8 +76,12 @@ public class ChildSession extends Session implements Runnable {
     }
 
     public void setSocket(Socket socket) {
-        this.close();
-        this.childSocket = socket;
+        try {
+            this.close();
+            this.childSocket = socket;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

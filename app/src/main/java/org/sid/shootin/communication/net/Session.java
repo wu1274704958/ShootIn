@@ -1,5 +1,6 @@
 package org.sid.shootin.communication.net;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -10,7 +11,7 @@ public abstract class Session {
 
     public abstract void startRecv();
 
-    public abstract void close();
+    public abstract void close() throws IOException;
 
     public void setOnRevc(OnReceiveLin revc) {
         this.receiveLin = revc;
