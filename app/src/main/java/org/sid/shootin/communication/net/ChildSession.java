@@ -13,6 +13,7 @@ public class ChildSession extends Session implements Runnable {
     private Socket childSocket;
     private Thread theThred;
     private OutputStream theOutput;
+    private final Object lock = new Object();
 
     public ChildSession(String targetIp, int targetPort) {
         this.targetIp = targetIp;
@@ -38,7 +39,7 @@ public class ChildSession extends Session implements Runnable {
             @Override
             public void run() {
                 try {
-                    synchronized (ChildSession.this.theOutput) {
+                    synchronized (lock) {
                         Message.writeMessage(ChildSession.this.theOutput, message);
                     }
                 } catch (IOException e) {

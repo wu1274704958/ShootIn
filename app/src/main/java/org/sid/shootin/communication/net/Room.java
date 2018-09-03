@@ -17,7 +17,7 @@ public class Room {
     public static final int
             ROOM_FLAG_CREATE = 2,
             ROOM_FLAG_JOIN = 4,
-            ROOM_FLAG_NOTHON = 0;
+            ROOM_FLAG_N = 0;
     private String roomName;
     private static Room instance;
     private ChildInfo me;
