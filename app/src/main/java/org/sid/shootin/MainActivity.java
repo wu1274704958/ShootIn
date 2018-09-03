@@ -8,6 +8,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.sid.shootin.communication.net.Room;
@@ -19,6 +22,11 @@ public class MainActivity extends AppCompatActivity {
     private Button bt_join;
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
+    private TextView my_name;
+    private TextView your_name;
+    private EditText et_name;
+    private EditText et_ip;
+    private ProgressBar pb;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,10 +45,21 @@ public class MainActivity extends AppCompatActivity {
             switch (view.getId()) {
                 case R.id.bt_creat:
                     if (Util.openWifiAp(MainActivity.this, "ShootIn")) {
-                        alertDialog = mydialog(MainActivity.this, 1);
+                        alertDialog = createdialog(MainActivity.this, "player1");
+                        Room room = Room.createNewRoom("new", "player1", 8889);
+                        room.setOnAddChildLin(new Room.OnAddChildLin() {
+                            @Override
+                            public void onAdd(Room.ChildInfo childInfo) {
+                                your_name.setText(childInfo.name);
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (Exception e) {
 
-                        //Room room = Room.createNewRoom("new","player1",8889);
-
+                                }
+                                GameActivity.gotoPlay(MainActivity.this);
+                                finish();
+                            }
+                        });
 
                         alertDialog.show();
                     } else {
@@ -48,34 +67,48 @@ public class MainActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.bt_join:
-                    alertDialog = mydialog(MainActivity.this, 0);
-                    alertDialog.show();
+
                     break;
             }
         }
     };
 
-    private AlertDialog mydialog(Context context, int i) {
+    private AlertDialog createdialog(Context context, String myname) {
         builder = new AlertDialog.Builder(context);
-        if (i == 1) {
-            builder.setView(R.layout.activity_room_create);
-            return builder.create();
-        }else{
+        View v = View.inflate(this, R.layout.activity_room_create, null);
+        my_name = v.findViewById(R.id.my_name);
+        your_name = v.findViewById(R.id.your_name);
+        my_name.setText(myname);
+        builder.setView(v);
+        return builder.create();
 
-            builder.setView(R.layout.activity_room_join);
-            builder.setNeutralButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+    }
 
-                }
-            });
-            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+    private AlertDialog joindialog(Context context) {
+        builder = new AlertDialog.Builder(context);
+        View v = View.inflate(context, R.layout.activity_room_join, null);
+        et_name = v.findViewById(R.id.et_name);
+        et_ip = v.findViewById(R.id.et_ip);
+        pb = v.findViewById(R.id.pb);
+        builder.setView(v)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-                }
-            });
-            return builder.create();
-        }
+                    }
+                })
+                .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+
+                    }
+                });
+        return builder.create();
     }
 }
