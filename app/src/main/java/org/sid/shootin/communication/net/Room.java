@@ -122,7 +122,7 @@ public class Room {
 
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(childInfo);
-                        socket.setSoTimeout(-1);
+                        socket.setSoTimeout(0);
                     } catch (JSONException e) {
                         socket.close();
                         serverSession.close();
