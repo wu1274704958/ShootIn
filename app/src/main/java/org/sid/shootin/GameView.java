@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -79,10 +80,17 @@ public class GameView extends View{
     private Room room;
     private Session recver;
 
+    private RectF againRect;
+    private RectF againRect_pressed;
+    private boolean isAgainPressed = false;
+    private Vec2 againPos;
+    private float again_text_size;
+
     public enum State{
         Pause,
         Playing,
-        Finish
+        Finish,
+        Exception
     }
 
     public GameView(Context context) {
@@ -103,10 +111,10 @@ public class GameView extends View{
         Height = Converter.getInstance().getH();
 
         room = Room.getInstance();
-        if( room.getFlag() == Room.ROOM_FLAG_CREATE)
-            isFZ = true;
-        else
+        if( room.getFlag() == Room.ROOM_FLAG_JOIN)
             isFZ = false;
+        else
+            isFZ = true;
 
         inThere = isFZ;
 
@@ -221,6 +229,17 @@ public class GameView extends View{
         s_me_pos = new Vec2(Width * 0.25f, bfy40 + fm.descent);
         s_his_pos = new Vec2(Width * 0.75f , bfy40 + fm.descent);
 
+        bx = (Width - bfx30) / 2.f;
+        by = (Height - bfy5) / 2.f;
+        againRect = new RectF(bx,by,bx + bfx30,by + bfy5);
+        againRect_pressed = new RectF(bx + 5,by + 5, bx - 5 ,by - 5 );
+
+
+        again_text_size = (bfx30 * 0.7f) / 4.f;
+        paint_begin.setTextSize(again_text_size);
+        fm = paint_begin.getFontMetrics();
+        againPos = new Vec2(mid_x,mid_y + fm.descent);
+
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
@@ -258,8 +277,17 @@ public class GameView extends View{
             case Finish:
                 drawFinish(canvas);
                 break;
+            case Exception:
+                drawException(canvas);
+                break;
         }
         lastTimeTick = System.currentTimeMillis();
+    }
+
+    void drawException(Canvas canvas)
+    {
+        paint_begin.setTextSize(bfx5);
+        canvas.drawText("对方异常退出",mid_x,mid_y,paint_begin);
     }
 
     void drawFinish(Canvas canvas)
@@ -267,6 +295,16 @@ public class GameView extends View{
         paint_begin.setTextSize(score_text_size);
         canvas.drawText(""+score_me,s_me_pos.x,s_me_pos.y,paint_begin);
         canvas.drawText(""+score_his,s_his_pos.x,s_his_pos.y,paint_begin);
+
+
+        paint_begin.setStyle(Paint.Style.STROKE);
+        if(isAgainPressed)
+            canvas.drawRoundRect(againRect_pressed,20,20,paint_begin);
+        else
+            canvas.drawRoundRect(againRect,20,20,paint_begin);
+
+        paint_begin.setTextSize(again_text_size);
+        canvas.drawText("再来一次",againPos.x,againPos.y ,paint_begin);
     }
 
     void drawBall(Canvas canvas)
@@ -482,6 +520,11 @@ public class GameView extends View{
                         lastPos.x = event.getX();
                         lastPos.y = event.getY();
                     }
+                }else if(state == State.Finish){
+                    if(againRect.contains(event.getX(),event.getY()))
+                    {
+                        isAgainPressed = true;
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -497,6 +540,16 @@ public class GameView extends View{
                     hvpos.x = 0.f;
                     hvpos.y = 0.f;
                     isHand = false;
+                }else if(state == State.Finish)
+                {
+                    if(againRect.contains(event.getX(), event.getY())) {
+                        isAgainPressed = false;
+                        score_me = 0;
+                        score_his = 0;
+                        sendScoreChange();
+                        sendPlay();
+                        state = State.Playing;
+                    }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
