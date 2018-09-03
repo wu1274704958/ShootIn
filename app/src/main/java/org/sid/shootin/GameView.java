@@ -110,6 +110,7 @@ public class GameView extends View{
                 log("onRecv " + s);
             }
         });
+        session.startRecv();
 
         bfy30 = (float)Height * 0.3f;
         bfy90 = (float)Height * 0.9f;
