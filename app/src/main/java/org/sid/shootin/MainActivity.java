@@ -2,11 +2,15 @@ package org.sid.shootin;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText et_ip;
     private ProgressBar pb;
     private View gotoplayButton;
+    Handler handler;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         bt_join.setOnClickListener(oc);
         bt_creat.setOnClickListener(oc);
-
+        handler = new Handler();
     }
 
     View.OnClickListener oc = new View.OnClickListener() {
@@ -52,13 +57,19 @@ public class MainActivity extends AppCompatActivity {
                         Room room = Room.createNewRoom("new", "player1", 8889);
                         room.setOnAddChildLin(new Room.OnAddChildLin() {
                             @Override
-                            public void onAdd(Room.ChildInfo childInfo) {
-                                your_name.setText(childInfo.name);
-                                if (gotoplayButton!=null)
-                                    gotoplayButton.setVisibility(View.VISIBLE);
+                            public void onAdd(final Room.ChildInfo childInfo) {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        your_name.setText(childInfo.name);
+                                        if (gotoplayButton != null)
+                                            gotoplayButton.setVisibility(View.VISIBLE);
+                                    }
+                                });
+
                             }
                         });
-
+                        room.accept();
                         alertDialog.show();
                     } else {
                         Toast.makeText(MainActivity.this, "热点开启失败，请手动开始", Toast.LENGTH_SHORT).show();
@@ -86,12 +97,12 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.setCanceledOnTouchOutside(false);
         (gotoplayButton = v.findViewById(R.id.gotoPlay))
                 .setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GameActivity.gotoPlay(MainActivity.this);
-                finish();
-            }
-        });
+                    @Override
+                    public void onClick(View view) {
+                        GameActivity.gotoPlay(MainActivity.this);
+                        finish();
+                    }
+                });
         alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
 
             @Override
@@ -114,13 +125,28 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String n = String.valueOf(et_name.getText());
-                        String ip = String.valueOf(et_ip.getText());
+                        WifiManager wifiManager = (WifiManager) MainActivity.this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                        DhcpInfo info = wifiManager.getDhcpInfo();
+                        String ip = intToIp(info.serverAddress);
+                        Log.e("=================", intToIp(info.serverAddress));
+
                         if (Util.linkWifi(MainActivity.this, "ShootIn", "")) {
                             Room room = Room.joinNewRoom(n, ip, 8889);
                             room.setOnAddChildLin(new Room.OnAddChildLin() {
                                 @Override
-                                public void onAdd(Room.ChildInfo childInfo) {
-                                    GameActivity.gotoPlay(MainActivity.this);
+                                public void onAdd(final Room.ChildInfo childInfo) {
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (childInfo == null) {
+                                                Toast.makeText(MainActivity.this, "无法连接", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                GameActivity.gotoPlay(MainActivity.this);
+                                            }
+                                        }
+                                    });
+
+
                                 }
                             });
                             room.accept();
@@ -146,5 +172,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         return builder.create();
+    }
+
+    private String intToIp(int paramInt) {
+        return (paramInt & 0xFF) + "." + (0xFF & paramInt >> 8) + "." + (0xFF & paramInt >> 16) + "."
+                + (0xFF & paramInt >> 24);
     }
 }

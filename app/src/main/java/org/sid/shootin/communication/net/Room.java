@@ -3,6 +3,7 @@ package org.sid.shootin.communication.net;
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,6 +11,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,15 +98,20 @@ public class Room {
             @Override
             public void run() {
                 try {
+                    Log.e("===============", "start.accept");
                     Socket socket = childSession.linkServer().getChildSocket();
+                    int timout = socket.getSoTimeout();
+                    socket.setSoTimeout(1000);
                     byte[] rep = ("{\"server\":\"ok\",\"roomName\":\"" + roomName + "\",\"playerName\":\"" + getMe().name + "\"}").getBytes();
                     Message respoMessage = Message.createMessage(Message.TYPE_STRING, rep, rep.length);
                     Message.writeMessage(socket.getOutputStream(), respoMessage);
 
                     Message message = Message.readMessage(socket.getInputStream());
-                    if (message == null || message.getType() != Message.TYPE_STRING)
+                    if (message == null || message.getType() != Message.TYPE_STRING) {
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(null);
+                        return;
+                    }
                     byte[] contents;
                     String content = new String((contents = message.getContent()) == null ? new byte[0] : contents);
                     try {
@@ -116,11 +123,15 @@ public class Room {
 
                         if (onAddChildLin != null)
                             onAddChildLin.onAdd(childInfo);
+                        socket.setSoTimeout(timout);
                     } catch (JSONException e) {
                         socket.close();
                         serverSession.close();
                     }
-
+                } catch (SocketTimeoutException e) {
+                    if (onAddChildLin != null)
+                        onAddChildLin.onAdd(null);
+                    Log.e(getClass().getName() + "=======>", e.getCause().toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
