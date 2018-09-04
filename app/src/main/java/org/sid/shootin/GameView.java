@@ -123,7 +123,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 }
             }catch (Exception e)
             {}finally {
-                surfaceHolder.unlockCanvasAndPost(mCanvas);
+                if(mCanvas != null)
+                    surfaceHolder.unlockCanvasAndPost(mCanvas);
             }
             long endTime = System.currentTimeMillis();
 
