@@ -24,7 +24,7 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         gv = findViewById(R.id.gv);
-        gv.init();
+        //gv.init();
     }
 
     public static void gotoPlay(Context context)

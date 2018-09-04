@@ -6,7 +6,7 @@
     tools:context=".GameActivity"
     >
     <org.sid.shootin.GameView
-        android:keepScreenOn="true"
+
         android:id="@+id/gv"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

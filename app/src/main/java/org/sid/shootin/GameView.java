@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Toast;
@@ -23,14 +24,20 @@ import java.lang.ref.SoftReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class GameView extends View{
+public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runnable{
     private static String LT = "GV";
     private static final float BALL_X = 0.1f;
+
+    private static final int TIME_IN_FRAME = 16;
 
     private static final int A_WHAT = 2;
     private static final int B_WHAT = 3;
     private static final int C_WHAT = 4;
     private static final int D_WHAT = 5;
+
+    private boolean isRuning;
+    private Canvas mCanvas;
+    private SurfaceHolder surfaceHolder;
 
     private int Width;
     private int Height;
@@ -53,7 +60,7 @@ public class GameView extends View{
     private int delatime;
     private long lastTimeTick;
     private MyHandler handler;
-    private Timer timer;
+
     private boolean inThere;
     private boolean isFZ;
     private RectF beginRect;
@@ -86,6 +93,44 @@ public class GameView extends View{
     private Vec2 againPos;
     private float again_text_size;
 
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        isRuning = true;
+        new Thread(this).start();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        isRuning = false;
+    }
+
+    @Override
+    public void run() {
+        while (isRuning) {
+
+            long startTime = System.currentTimeMillis();
+            try {
+                mCanvas = surfaceHolder.lockCanvas();
+                draw();
+            }catch (Exception e)
+            {}finally {
+                surfaceHolder.unlockCanvasAndPost(mCanvas);
+            }
+            long endTime = System.currentTimeMillis();
+
+            int diffTime  = (int)(endTime - startTime);
+            diffTime = TIME_IN_FRAME - diffTime;
+            if (diffTime > 0){
+                try { Thread.sleep(diffTime);}catch (Exception e){}
+            }
+        }
+    }
+
     public enum State{
         Pause,
         Playing,
@@ -95,18 +140,28 @@ public class GameView extends View{
 
     public GameView(Context context) {
         super(context);
+        init();
     }
 
-    public GameView(Context context, @Nullable AttributeSet attrs) {
+    public GameView(Context context, @Nullable AttributeSet attrs)
+    {
         super(context, attrs);
+        init();
     }
 
     public GameView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     public void init()
     {
+        surfaceHolder = getHolder();
+        surfaceHolder.addCallback(this);
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        this.setKeepScreenOn(true);
+
         Width = Converter.getInstance().getW();
         Height = Converter.getInstance().getH();
 
@@ -232,7 +287,7 @@ public class GameView extends View{
         bx = (Width - bfx30) / 2.f;
         by = (Height - bfy5) / 2.f;
         againRect = new RectF(bx,by,bx + bfx30,by + bfy5);
-        againRect_pressed = new RectF(bx + 5,by + 5, bx - 5 ,by - 5 );
+        againRect_pressed = new RectF(againRect.left + 5,againRect.top + 5, againRect.right - 5 ,againRect.bottom - 5 );
 
 
         again_text_size = (bfx30 * 0.7f) / 4.f;
@@ -243,42 +298,31 @@ public class GameView extends View{
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                handler.sendEmptyMessage(0);
-            }
-        },16,16);
-
     }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-
+    private void draw() {
         long now = System.currentTimeMillis();
         delatime = (int)(now - lastTimeTick);
 
-        canvas.drawARGB(255,0,0,0);
+        mCanvas.drawARGB(255,0,0,0);
         switch (state)
         {
             case Playing:
-                canvas.drawLine(0.f,bfy30,(float)Width,bfy30,paint_line);
-                canvas.drawLine(0.f,bfy90,(float)Width,bfy90,paint_line);
+                mCanvas.drawLine(0.f,bfy30,(float)Width,bfy30,paint_line);
+                mCanvas.drawLine(0.f,bfy90,(float)Width,bfy90,paint_line);
                 if(inThere)
-                    drawBall(canvas);
-                drawHand(canvas);
+                    drawBall(mCanvas);
+                drawHand(mCanvas);
                 if(inThere)
-                    step(canvas);
+                    step(mCanvas);
                 break;
             case Pause:
-                drawPause(canvas);
+                drawPause(mCanvas);
                 break;
             case Finish:
-                drawFinish(canvas);
+                drawFinish(mCanvas);
                 break;
             case Exception:
-                drawException(canvas);
+                drawException(mCanvas);
                 break;
         }
         lastTimeTick = System.currentTimeMillis();
@@ -452,8 +496,7 @@ public class GameView extends View{
                     GameView v = gv.get();
                     if(v != null)
                     {
-                        v.timer.cancel();
-                        Toast.makeText(v.getContext(),"对方退出！",Toast.LENGTH_SHORT).show();
+                        v.state = State.Exception;
                     }
                 }
                 break;
@@ -647,7 +690,7 @@ public class GameView extends View{
     }
     public void destroy()
     {
-        timer.cancel();
+        //timer.cancel();
     }
 
     static void log(String s){
