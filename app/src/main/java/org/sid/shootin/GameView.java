@@ -10,20 +10,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.widget.Toast;
 
 import org.sid.shootin.communication.net.Room;
 import org.sid.shootin.communication.net.Session;
+import org.sid.shootin.particle.ParticleGen;
+import org.sid.shootin.particle.ParticleSys;
+import org.sid.shootin.particle.Particleable;
 
 import java.lang.ref.SoftReference;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runnable{
     private static String LT = "GV";
@@ -94,6 +94,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     private boolean isAgainPressed = false;
     private Vec2 againPos;
     private float again_text_size;
+
+    private LinkedList<Particleable> parcelables;
+    private ArrayList<Particleable> rm_list;
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -303,6 +306,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         fm = paint_begin.getFontMetrics();
         againPos = new Vec2(mid_x,mid_y + fm.descent);
 
+        ParticleGen.Gen(bfx5,1.0f,6.0f,160);
+        parcelables = new LinkedList<>();
+        rm_list = new ArrayList<>();
+
 
         lastTimeTick = System.currentTimeMillis();
         handler = new MyHandler(new SoftReference<GameView>(this));
@@ -332,6 +339,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             case Exception:
                 drawException(mCanvas);
                 break;
+        }
+        rm_list.clear();
+        for(Particleable pa : parcelables)
+        {
+            if(pa.isOver())
+            {
+                rm_list.add(pa);
+                continue;
+            }
+            pa.draw(mCanvas);
+            pa.update(delatime);
+        }
+        for(Particleable pa : rm_list)
+        {
+            parcelables.remove(pa);
         }
         lastTimeTick = System.currentTimeMillis();
     }
@@ -399,6 +421,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         if(bvpos.x <= 0 && ball_pos.x < bfx5)
             bvpos.x = -bvpos.x;
         if(ball_pos.y + bfx5 > Height){
+            parcelables.add(new ParticleSys(0xFF00aaaa,ball_pos.x,ball_pos.y));
             score_his++;
             inThere = false;
             sendScoreChange();

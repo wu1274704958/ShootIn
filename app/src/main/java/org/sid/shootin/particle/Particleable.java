@@ -1,4 +1,4 @@
-package org.sid.shootin;
+package org.sid.shootin.particle;
 
 import android.graphics.Canvas;
 
