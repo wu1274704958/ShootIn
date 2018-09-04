@@ -34,6 +34,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     private static final int B_WHAT = 3;
     private static final int C_WHAT = 4;
     private static final int D_WHAT = 5;
+    private static final int E_WHAT = 6;
 
     private boolean isRuning;
     private Canvas mCanvas;
@@ -211,6 +212,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                             m.obj = info;
                             handler.sendMessage(m);
                         }
+                            break;
+                        case 'E':
+                            handler.sendEmptyMessage(E_WHAT);
                             break;
                     }
                 }
@@ -541,6 +545,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                     }
                 }
                 break;
+                case  E_WHAT:
+                    GameView v = gv.get();
+                    if (v != null) {
+                        v.resetBall();
+                        v.resetHand();
+                        v.score_me = 0;
+                        v.score_his = 0;
+                        v.inThere = !v.inThere;
+                        v.state = State.Playing;
+                    }
+                    break;
             }
         }
     }
@@ -587,11 +602,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 {
                     if(againRect.contains(event.getX(), event.getY())) {
                         isAgainPressed = false;
+                        resetBall();
+                        resetHand();
                         score_me = 0;
                         score_his = 0;
-                        sendScoreChange();
-                        sendPlay();
+                        inThere = !inThere;
                         state = State.Playing;
+                        sendPlayAgain();
                     }
                 }
                 break;
@@ -617,7 +634,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         }
         return true;
     }
-    public void sendBallOut()
+    private void sendBallOut()
     {
         Vec2 v = Converter.getInstance().convert(new Vec2(-bvpos.x,-bvpos.y));
         float x = Converter.getInstance().convertW(ball_pos.x);
@@ -631,7 +648,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
         log("sendBallOut() " +s);
     }
-    public void sendPause(){
+    private void sendPause(){
         String s = "B";
         Session session = room.getSession();
         session.sendMessage(
@@ -641,7 +658,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 ));
         log("sendPause() " +s);
     }
-    public void sendPlay(){
+    private void sendPlay(){
         String s = "C";
         Session session = room.getSession();
         session.sendMessage(
@@ -652,7 +669,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
         log("sendPlay() " + s);
     }
-    public void sendScoreChange(){
+    private void sendScoreChange(){
         StringBuffer sb = new StringBuffer();
         sb.append("D#");
         if(inThere)
@@ -671,12 +688,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
         log("sendScoreChange() " +s);
     }
-    public void resetBall()
+    private void sendPlayAgain()
+    {
+        String s = "E";
+        Session session = room.getSession();
+        session.sendMessage(
+                org.sid.shootin.communication.net.Message.createMessage(
+                        org.sid.shootin.communication.net.Message.TYPE_STRING,
+                        s.getBytes(),0
+                ));
+
+        log("sendPlay() " + s);
+    }
+    private void resetBall()
     {
         ball_pos.x = mid_x;
         ball_pos.y = mid_y;
         bvpos.x = 0.f;
         bvpos.y = 0.f;
+    }
+    private void resetHand()
+    {
+        handPos.x = mid_x;
+        handPos.y = bfy80;
+        hvpos.x = 0.f;
+        hvpos.y = 0.f;
     }
 
     public void stop()
