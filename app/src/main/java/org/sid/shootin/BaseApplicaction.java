@@ -12,6 +12,7 @@ public class BaseApplicaction extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Realm.init(this);
+        int a = 0;
+        Realm.init(this)   ;
     }
 }
