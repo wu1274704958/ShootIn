@@ -117,7 +117,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             long startTime = System.currentTimeMillis();
             try {
                 mCanvas = surfaceHolder.lockCanvas();
-                draw();
+                synchronized (surfaceHolder) {
+                    draw();
+                }
             }catch (Exception e)
             {}finally {
                 surfaceHolder.unlockCanvasAndPost(mCanvas);
@@ -500,18 +502,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                     GameView v = gv.get();
                     if(v != null)
                     {
-                        v.state = State.Exception;
+                        synchronized (v.surfaceHolder) {
+                            v.state = State.Exception;
+                        }
                     }
                 }
                 break;
                 case A_WHAT: {
                     GameView v = gv.get();
                     if (v != null) {
-                        AInfo info = (AInfo) msg.obj;
-                        v.inThere = true;
-                        v.ball_pos.x = info.x;
-                        v.ball_pos.y = -v.bfx5 + 1;
-                        v.bvpos = info.v;
+                        synchronized (v.surfaceHolder) {
+                            AInfo info = (AInfo) msg.obj;
+                            v.inThere = true;
+                            v.ball_pos.x = info.x;
+                            v.ball_pos.y = -v.bfx5 + 1;
+                            v.bvpos = info.v;
+                        }
                     }
                 }
                     break;
@@ -519,7 +525,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 {
                     GameView v = gv.get();
                     if (v != null) {
-                        v.state = State.Pause;
+                        synchronized (v.surfaceHolder) {
+                            v.state = State.Pause;
+                        }
                     }
                 }
                     break;
@@ -527,7 +535,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 {
                     GameView v = gv.get();
                     if (v != null) {
-                        v.state = State.Playing;
+                        synchronized (v.surfaceHolder) {
+                            v.state = State.Playing;
+                        }
                     }
                 }
                 break;
@@ -535,25 +545,29 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 {
                     GameView v = gv.get();
                     if (v != null) {
-                        DInfo info = (DInfo)msg.obj;
-                        if(info.inThere == 1)
-                            v.inThere = true;
-                        v.score_me = info.me_score;
-                        v.score_his = info.his_score;
-                        if(v.score_me == 3)
-                            v.state = State.Finish;
+                        synchronized (v.surfaceHolder) {
+                            DInfo info = (DInfo) msg.obj;
+                            if (info.inThere == 1)
+                                v.inThere = true;
+                            v.score_me = info.me_score;
+                            v.score_his = info.his_score;
+                            if (v.score_me == 3)
+                                v.state = State.Finish;
+                        }
                     }
                 }
                 break;
                 case  E_WHAT:
                     GameView v = gv.get();
                     if (v != null) {
-                        v.resetBall();
-                        v.resetHand();
-                        v.score_me = 0;
-                        v.score_his = 0;
-                        v.inThere = !v.inThere;
-                        v.state = State.Playing;
+                        synchronized (v.surfaceHolder) {
+                            v.resetBall();
+                            v.resetHand();
+                            v.score_me = 0;
+                            v.score_his = 0;
+                            v.inThere = !v.inThere;
+                            v.state = State.Playing;
+                        }
                     }
                     break;
             }
@@ -562,75 +576,71 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction())
-        {
-            case MotionEvent.ACTION_DOWN:
-                if(state == State.Pause) {
-                    if (beginRect.contains(event.getX(), event.getY())) {
-                        beginIsPressed = true;
+        synchronized (surfaceHolder) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (state == State.Pause) {
+                        if (beginRect.contains(event.getX(), event.getY())) {
+                            beginIsPressed = true;
+                        }
+                    } else if (state == State.Playing) {
+                        RectF temp_hand = new RectF(handPos.x + handRect.left, handPos.y + handRect.top,
+                                handPos.x + handRect.right, handPos.y + handRect.bottom);
+                        if (temp_hand.contains(event.getX(), event.getY())) {
+                            isHand = true;
+                            lastPos.x = event.getX();
+                            lastPos.y = event.getY();
+                        }
+                    } else if (state == State.Finish) {
+                        if (againRect.contains(event.getX(), event.getY())) {
+                            isAgainPressed = true;
+                        }
                     }
-                }else if(state == State.Playing){
-                    RectF temp_hand = new RectF(handPos.x + handRect.left,handPos.y + handRect.top ,
-                            handPos.x + handRect.right , handPos.y + handRect.bottom);
-                    if(temp_hand.contains(event.getX(),event.getY()))
-                    {
-                        isHand = true;
-                        lastPos.x = event.getX();
-                        lastPos.y = event.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (state == State.Pause) {
+                        if (beginRect.contains(event.getX(), event.getY())) {
+                            beginIsPressed = false;
+                            Log.e(LT, "Playing");
+                            state = State.Playing;
+                            sendPlay();
+                        }
+                    } else if (state == State.Playing) {
+                        hvpos.x = 0.f;
+                        hvpos.y = 0.f;
+                        isHand = false;
+                    } else if (state == State.Finish) {
+                        if (againRect.contains(event.getX(), event.getY())) {
+                            isAgainPressed = false;
+                            resetBall();
+                            resetHand();
+                            score_me = 0;
+                            score_his = 0;
+                            inThere = !inThere;
+                            state = State.Playing;
+                            sendPlayAgain();
+                        }
                     }
-                }else if(state == State.Finish){
-                    if(againRect.contains(event.getX(),event.getY()))
-                    {
-                        isAgainPressed = true;
-                    }
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                if(state == State.Pause) {
-                    if (beginRect.contains(event.getX(), event.getY())) {
-                        beginIsPressed = false;
-                        Log.e(LT,"Playing");
-                        state = State.Playing;
-                        sendPlay();
-                    }
-                }else if(state == State.Playing)
-                {
-                    hvpos.x = 0.f;
-                    hvpos.y = 0.f;
-                    isHand = false;
-                }else if(state == State.Finish)
-                {
-                    if(againRect.contains(event.getX(), event.getY())) {
-                        isAgainPressed = false;
-                        resetBall();
-                        resetHand();
-                        score_me = 0;
-                        score_his = 0;
-                        inThere = !inThere;
-                        state = State.Playing;
-                        sendPlayAgain();
-                    }
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if(isHand)
-                {
-                    hvpos.x = lastPos.x -  handPos.x ;
-                    hvpos.y = lastPos.y - handPos.y;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (isHand) {
+                        hvpos.x = lastPos.x - handPos.x;
+                        hvpos.y = lastPos.y - handPos.y;
 //                    Log.e(LT," " + handPos.x + "  " + handPos.y);
 //                    Log.e(LT," " + lastPos.x + "  " + lastPos.y);
 //                    Log.e(LT," " + hvpos.x + "  " + hvpos.y);
-                    handPos.x += hvpos.x;
-                    handPos.y += hvpos.y;
-                    if(handPos.y < handMinY) {
-                        handPos.y -= hvpos.y;
-                        hvpos.y = 0.f;
-                    }
+                        handPos.x += hvpos.x;
+                        handPos.y += hvpos.y;
+                        if (handPos.y < handMinY) {
+                            handPos.y -= hvpos.y;
+                            hvpos.y = 0.f;
+                        }
 
-                    lastPos.x = event.getX();
-                    lastPos.y = event.getY();
-                }
-                break;
+                        lastPos.x = event.getX();
+                        lastPos.y = event.getY();
+                    }
+                    break;
+            }
         }
         return true;
     }
