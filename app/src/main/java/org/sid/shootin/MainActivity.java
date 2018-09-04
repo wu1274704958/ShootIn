@@ -2,6 +2,7 @@ package org.sid.shootin;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -132,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
                         String n = String.valueOf(et_name.getText());
                         WifiManager wifiManager = (WifiManager) MainActivity.this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                         DhcpInfo info = wifiManager.getDhcpInfo();
-                        String ip = intToIp(info.serverAddress);
-                        Log.e("=================", intToIp(info.serverAddress));
+                        String ip = Util.intToIp(info.serverAddress);
+                        Log.e("=================", Util.intToIp(info.serverAddress));
 
                         if (Util.linkWifi(MainActivity.this, "ShootIn", "")) {
                             room = Room.joinNewRoom(n, ip, 8889);
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialogInterface) {
-                        if(room != null) {
+                        if (room != null) {
                             room.close();
                             room = null;
                         }
@@ -177,8 +178,4 @@ public class MainActivity extends AppCompatActivity {
         return builder.create();
     }
 
-    private String intToIp(int paramInt) {
-        return (paramInt & 0xFF) + "." + (0xFF & paramInt >> 8) + "." + (0xFF & paramInt >> 16) + "."
-                + (0xFF & paramInt >> 24);
-    }
 }

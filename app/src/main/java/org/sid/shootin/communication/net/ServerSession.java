@@ -17,14 +17,10 @@ public class ServerSession extends ChildSession {
         }
     }
 
-    public Socket waitChild() {
-        try {
-            setSocket(serverSocket.accept());
-            return getChildSocket();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public Socket waitChild() throws IOException {
+
+        setSocket(serverSocket.accept());
+        return getChildSocket();
     }
 
     @Deprecated

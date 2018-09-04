@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sid.shootin.tools.Looger;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -102,7 +103,7 @@ public class Room {
             @Override
             public void run() {
                 try {
-                    Log.e("===============", "start.accept.server");
+                    Looger.e("start.accept.server");
                     Socket socket = childSession.linkServer().getChildSocket();
                     socket.setSoTimeout(2000);
                     byte[] rep = ("{\"server\":\"ok\",\"roomName\":\"" + roomName + "\",\"playerName\":\"" + getMe().name + "\"}").getBytes();
@@ -135,7 +136,7 @@ public class Room {
                 } catch (SocketTimeoutException e) {
                     if (onAddChildLin != null)
                         onAddChildLin.onAdd(null);
-                    Log.e(getClass().getName() + "time out=======>", e.getMessage() + "");
+                    Looger.e("time out :" + e.getMessage() + "");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -149,8 +150,8 @@ public class Room {
         (accpetThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Socket socket = serverSession.waitChild();
                 try {
+                    Socket socket = serverSession.waitChild();
                     socket.setSoTimeout(2000);
                     Message message = Message.readMessage(socket.getInputStream());
                     socket.setSoTimeout(0);
@@ -175,7 +176,7 @@ public class Room {
                         serverSession.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Looger.ec(getClass(), "socket is closed");
                 } finally {
                     accpetThread = null;
                 }
@@ -217,7 +218,7 @@ public class Room {
             if (session != null)
                 session.close();
         } catch (Exception e) {
-            Log.e("=========", "session is close");
+            Looger.e("session is close");
         }
         if (accpetThread != null)
             accpetThread.interrupt();
