@@ -1,6 +1,7 @@
 package org.sid.shootin;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -352,7 +353,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             canvas.drawRoundRect(againRect_pressed,20,20,paint_begin);
         else
             canvas.drawRoundRect(againRect,20,20,paint_begin);
-
+        paint_begin.setStyle(Paint.Style.FILL);
         paint_begin.setTextSize(again_text_size);
         canvas.drawText("再来一次",againPos.x,againPos.y ,paint_begin);
     }
@@ -380,7 +381,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             canvas.drawRoundRect(beginRect,20,20,paint_begin);
         else
             canvas.drawRoundRect(beginRect_pressed,20,20,paint_begin);
-        //paint_begin.setStyle(Paint.Style.STROKE);
+        paint_begin.setStyle(Paint.Style.FILL);
         paint_begin.setTextSize( begin_text_size );
         canvas.drawText("开始游戏",begin_pos.x,begin_pos.y,paint_begin);
     }
@@ -424,9 +425,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         if(temp_ball.bottom > temp_hand.top && temp_ball.top < temp_hand.bottom
                 && temp_ball.right > temp_hand.left && temp_ball.left < temp_hand.right)
         {
-            paint_line.setColor(Color.YELLOW);
-            canvas.drawRect(temp_ball,paint_line);
-            canvas.drawRect(temp_hand,paint_line);
+//            paint_line.setColor(Color.YELLOW);
+//            canvas.drawRect(temp_ball,paint_line);
+//            canvas.drawRect(temp_hand,paint_line);
 
             float gdc = temp_hand.top - temp_ball.top;
             float kdc = temp_hand.left - temp_ball.left;
@@ -478,7 +479,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             }
         }
 
-        paint_line.setColor(Color.RED);
+        //paint_line.setColor(Color.RED);
     }
     static class MyHandler extends Handler{
         SoftReference<GameView> gv;
@@ -737,6 +738,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     public void destroy()
     {
         //timer.cancel();
+        room.close();
+        getContext().startActivity(new Intent(getContext(),MainActivity.class));
     }
 
     static void log(String s){
