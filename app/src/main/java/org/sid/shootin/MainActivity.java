@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsoluteLayout;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         try {
             InputStream inputStream = getAssets().open("background_img_1.jpg");
             bitmap = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -183,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         your_name = v.findViewById(R.id.your_name);
         my_name.setText(myname);
         builder.setView(v);
-        AlertDialog alertDialog = builder.create();
+        final AlertDialog alertDialog = builder.create();
         alertDialog.setCanceledOnTouchOutside(false);
         (gotoplayButton = v.findViewById(R.id.gotoPlay))
                 .setOnClickListener(new View.OnClickListener() {
@@ -191,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     public void onClick(View view) {
                         Room.getInstance().getSession().sendMessage(Message.createMessage(Message.TYPE_STRING, "#START#".getBytes(), 0));
                         GameActivity.gotoPlay(MainActivity.this);
+                        alertDialog.dismiss();
                         finish();
                     }
                 });
