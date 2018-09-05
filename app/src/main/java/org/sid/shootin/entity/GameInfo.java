@@ -77,4 +77,6 @@ public class GameInfo extends RealmObject {
     public void setDate(String date) {
         this.date = date;
     }
+
+
 }

@@ -2,6 +2,8 @@ package org.sid.shootin;
 
 import android.app.Application;
 
+import org.sid.shootin.database.GameInfoDaoImpl;
+
 import io.realm.Realm;
 
 /**
@@ -13,6 +15,7 @@ public class BaseApplicaction extends Application {
     public void onCreate() {
         super.onCreate();
         int a = 0;
-        Realm.init(this)   ;
+        Realm.init(this);
+        GameInfoDaoImpl.getInstace();
     }
 }
