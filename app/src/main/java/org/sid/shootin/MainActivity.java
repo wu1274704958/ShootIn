@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
 
-    @SuppressLint("ClickableViewAccessibility")// call preclick
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
