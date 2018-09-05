@@ -501,8 +501,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 }
             }else {
                 if (gdc > 0) {
-                    float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x * 0.8f;
-                    float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y * 0.8f;
+                    float vx = Math.abs(bvpos.x) > Math.abs(hvpos.x) ? bvpos.x : hvpos.x ;//* 0.8f;
+                    float vy = Math.abs(-bvpos.y) > Math.abs(hvpos.y) ? -bvpos.y : hvpos.y; //* 0.8f;
                     bvpos.y = vy * 0.76f;
                     bvpos.x = vx * 0.76f;
                     float t_gdc = temp_ball.bottom - temp_hand.top;
@@ -591,8 +591,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                                 v.inThere = true;
                             v.score_me = info.me_score;
                             v.score_his = info.his_score;
-                            if (v.score_me == 3)
+                            if (v.score_me == 3) {
+                                GameInfoDaoImpl.getInstace().addNewScore(v.room.getMe().name,v.room.getOuthers().get(0).name,v.score_me,v.score_his);
                                 v.state = State.Finish;
+                            }
                         }
                     }
                 }
