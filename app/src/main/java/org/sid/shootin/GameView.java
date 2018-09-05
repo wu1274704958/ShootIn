@@ -18,6 +18,8 @@ import android.view.SurfaceView;
 
 import org.sid.shootin.communication.net.Room;
 import org.sid.shootin.communication.net.Session;
+import org.sid.shootin.database.GameInfoDaoImpl;
+import org.sid.shootin.entity.GameInfo;
 import org.sid.shootin.particle.Part;
 import org.sid.shootin.particle.ParticleGen;
 import org.sid.shootin.particle.ParticleSys;
@@ -439,6 +441,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
             sendScoreChange();
             if(score_his == 3)
             {
+                GameInfoDaoImpl.getInstace().addNewScore(room.getMe().name,room.getOuthers().get(0).name,score_me,score_his);
                 state = State.Finish;
             }
             resetBall();
