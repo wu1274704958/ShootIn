@@ -1,6 +1,7 @@
 package org.sid.shootin;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,6 +21,7 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
     private ImageView iv;
     private TextView te;
     private List<GameInfo> list;
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,14 +30,18 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
         listview = findViewById(R.id.listview);
         iv = findViewById(R.id.iv);
         te = findViewById(R.id.te);
-        Intent it = getIntent();
-        String playname = it.getStringExtra("playname");
+        //查询目标信息
+        sp = getSharedPreferences("gameinfo", MODE_PRIVATE);
+        String playname = sp.getString("play_name", null);
         list = selectRecord(playname);
+
         RecordAdapter adapter = new RecordAdapter(list);
         listview.setAdapter(adapter);
         listview.setDivider(null);
         listview.setDividerHeight(0);
-        if (victory() < 30) {
+        if (list.size() == 0) {
+            te.setText("您一共参加了" + list.size() + "场比赛,胜率为:" + victory() + "%\n快去和玩家对战,证明自己的实力吧");
+        } else if (list.size() != 0 && victory() < 30) {
             te.setText("您一共参加了" + list.size() + "场比赛,胜率为:" + victory() + "%\n你太菜了,多去练习吧");
         } else if (victory() >= 30 && victory() < 60) {
             te.setText("您一共参加了" + list.size() + "场比赛,胜率为:" + victory() + "%\n继续努力吧,你的上升空间还很大");
@@ -51,8 +57,7 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
 
     public List<GameInfo> selectRecord(String playname) {
         HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("win", playname);
-        hashMap.put("transport", playname);
+        hashMap.put("your", playname);
         List<GameInfo> list = GameInfoDaoImpl.getInstace().queryAll(hashMap).success();
         return list;
     }
@@ -60,7 +65,7 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
     public float victory() {
         int count = 0;
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getWin().equals("小妹")) {
+            if (list.get(i).getYourscore() > list.get(i).getHierscore()) {
                 count++;
             }
         }

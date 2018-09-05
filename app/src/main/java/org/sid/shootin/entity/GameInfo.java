@@ -9,9 +9,10 @@ import io.realm.annotations.PrimaryKey;
 public class GameInfo extends RealmObject {
     @PrimaryKey
     private int gid;
-    private String win;         //获胜者姓名
-    private String transport;   //失败者姓名
-    private String score;       //比分
+    private String your;         //你的名字
+    private String hier;         //对手的名字
+    private int yourscore;       //你的得分
+    private int hierscore;      //对手的得分
     private String date;        //时间
 
     public GameInfo() {
@@ -20,12 +21,13 @@ public class GameInfo extends RealmObject {
         this.date = simpleDateFormat.format(date);
     }
 
-    public GameInfo(int gid, String win, String transport, String score) {
+    public GameInfo(int gid, String your, String hier, int yourscore, int hierscore) {
         this();
         this.gid = gid;
-        this.win = win;
-        this.transport = transport;
-        this.score = score;
+        this.your = your;
+        this.hier = hier;
+        this.yourscore = yourscore;
+        this.hierscore = hierscore;
     }
 
     public int getGid() {
@@ -36,28 +38,36 @@ public class GameInfo extends RealmObject {
         this.gid = gid;
     }
 
-    public String getWin() {
-        return win;
+    public String getYour() {
+        return your;
     }
 
-    public void setWin(String win) {
-        this.win = win;
+    public void setYour(String your) {
+        this.your = your;
     }
 
-    public String getTransport() {
-        return transport;
+    public String getHier() {
+        return hier;
     }
 
-    public void setTransport(String transport) {
-        this.transport = transport;
+    public void setHier(String hier) {
+        this.hier = hier;
     }
 
-    public String getScore() {
-        return score;
+    public int getYourscore() {
+        return yourscore;
     }
 
-    public void setScore(String score) {
-        this.score = score;
+    public void setYourscore(int yourscore) {
+        this.yourscore = yourscore;
+    }
+
+    public int getHierscore() {
+        return hierscore;
+    }
+
+    public void setHierscore(int hierscore) {
+        this.hierscore = hierscore;
     }
 
     public String getDate() {
@@ -67,5 +77,4 @@ public class GameInfo extends RealmObject {
     public void setDate(String date) {
         this.date = date;
     }
-
 }

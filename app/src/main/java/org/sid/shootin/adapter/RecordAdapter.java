@@ -51,10 +51,10 @@ public class RecordAdapter extends BaseAdapter {
         }
         GameInfo info = list.get(list.size() - 1 - position);
         vh.te_date.setText(info.getDate());
-        vh.te_win.setText(info.getWin());
-        vh.te_score.setText(info.getScore());
-        vh.te_transport.setText(info.getTransport());
-        if (info.getWin().equals("小妹")) {
+        vh.te_win.setText(info.getYour());
+        vh.te_score.setText(info.getYourscore() + ":" + info.getHierscore());
+        vh.te_transport.setText(info.getHier());
+        if (info.getYourscore()>info.getHierscore()) {
             vh.result.setText("胜");
             vh.result.setTextColor(0xffff8800);
         } else {

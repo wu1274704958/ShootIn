@@ -25,8 +25,8 @@ public class GameInfoDaoImpl extends BaseRealmDaoImpl<GameInfo> {
         return instace;
     }
 
-    public void addNewScore(String win, String fid, String score) {
-        GameInfo gameInfo = new GameInfo(UUID.randomUUID().hashCode(), win, fid, score);
+    public void addNewScore(String your, String hier, int yourscore, int hierscore) {
+        GameInfo gameInfo = new GameInfo(UUID.randomUUID().hashCode(), your, hier, yourscore, hierscore);
         this.insertInto(gameInfo);
     }
 
