@@ -1,6 +1,7 @@
 package org.sid.shootin.adapter;
 
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,12 +55,16 @@ public class RecordAdapter extends BaseAdapter {
         vh.te_win.setText(info.getYour());
         vh.te_score.setText(info.getYourscore() + ":" + info.getHierscore());
         vh.te_transport.setText(info.getHier());
-        if (info.getYourscore()>info.getHierscore()) {
+        if (info.getYourscore() > info.getHierscore()) {
             vh.result.setText("胜");
             vh.result.setTextColor(0xffff8800);
+            vh.te_win.setTypeface(vh.te_win.getTypeface(), Typeface.BOLD);
+            vh.te_transport.setTypeface(vh.te_transport.getTypeface(), Typeface.NORMAL);
         } else {
             vh.result.setText("败");
             vh.result.setTextColor(0xdacccccc);
+            vh.te_transport.setTypeface(vh.te_transport.getTypeface(), Typeface.BOLD);
+            vh.te_win.setTypeface(vh.te_win.getTypeface(), Typeface.NORMAL);
         }
         return convertView;
     }
