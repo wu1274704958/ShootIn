@@ -32,7 +32,7 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
         te = findViewById(R.id.te);
         //查询目标信息
         sp = getSharedPreferences("gameinfo", MODE_PRIVATE);
-        String playname = sp.getString("play_name", null);
+        String playname = sp.getString("player_name", "default");
         list = selectRecord(playname);
 
         RecordAdapter adapter = new RecordAdapter(list);
