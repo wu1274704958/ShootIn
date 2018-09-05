@@ -39,9 +39,9 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
         listview.setAdapter(adapter);
         listview.setDivider(null);
         listview.setDividerHeight(0);
-        if (list.size() == 0) {
+        if(list.size()==0){
             te.setText("您一共参加了" + list.size() + "场比赛,胜率为:" + victory() + "%\n快去和玩家对战,证明自己的实力吧");
-        } else if (list.size() != 0 && victory() < 30) {
+        }else if (list.size()!=0&&victory() < 30) {
             te.setText("您一共参加了" + list.size() + "场比赛,胜率为:" + victory() + "%\n你太菜了,多去练习吧");
         } else if (victory() >= 30 && victory() < 60) {
             te.setText("您一共参加了" + list.size() + "场比赛,胜率为:" + victory() + "%\n继续努力吧,你的上升空间还很大");
@@ -69,7 +69,7 @@ public class M2Activity extends AppCompatActivity implements View.OnClickListene
                 count++;
             }
         }
-        float result = Float.valueOf(count) / list.size() * 100;
+        float result = list.size() == 0 ? 0 : Float.valueOf(count) / list.size() * 100;
         count = 0;
         return result;
     }
