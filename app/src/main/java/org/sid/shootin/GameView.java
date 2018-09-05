@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -269,6 +270,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         paint_ball.setColor(0xFF00aaaa);
 
         paint_begin = new Paint();
+        paint_begin.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"font/ttf2.ttf"));
         paint_begin.setAntiAlias(true);
         paint_begin.setDither(true);
         paint_begin.setColor(0xFF00aaaa);
@@ -359,7 +361,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 continue;
             }
             pa.draw(mCanvas);
-            pa.update(delatime);
+            pa.update(16);
         }
         for(Particleable pa : rm_list)
         {
