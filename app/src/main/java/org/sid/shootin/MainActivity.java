@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         bt_creat.setOnClickListener(oc);
         main_history.setOnClickListener(oc);
         anmView = findViewById(R.id.anm_show);
+        loadTypeFace();
+
         handler = new Handler();
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         scrnWidth = displayMetrics.widthPixels;
@@ -118,6 +121,14 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         main_history.setOnTouchListener(this);
         animation = AnimationUtils.loadAnimation(this, R.anim.scal_zoom_big);
         animation.setAnimationListener(this);
+    }
+
+    private void loadTypeFace() {
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "font/ttf2.ttf");
+        bt_creat.setTypeface(typeface, bt_creat.getTypeface().getStyle());
+        bt_join.setTypeface(typeface, bt_join.getTypeface().getStyle());
+        ((TextView) main_setting).setTypeface(typeface);
+        ((TextView) main_history).setTypeface(typeface);
     }
 
     View.OnClickListener oc = new View.OnClickListener() {
