@@ -58,7 +58,7 @@ public class ParticleSys implements Particleable{
             p.pos.x += p.v.x * delatiem * 0.01f * Math.sin(sin_n);
             p.pos.y += p.v.y * delatiem * 0.01f * Math.sin(sin_n);
 
-            p.r -= delatiem * 0.01f * Math.sin(sin_n);
+            p.r -= delatiem * 0.005f * Math.sin(sin_n);
         }
         sin_n += zl;
     }
