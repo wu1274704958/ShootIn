@@ -3,6 +3,7 @@ package org.sid.shootin.particle;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 
 import org.sid.shootin.Vec2;
 
@@ -18,10 +19,10 @@ public class ParticleSys implements Particleable{
     private double zl = 0.01;
     private ArrayList<Part> myPs;
 
-    public ParticleSys(int c,float x,float y)
+    public ParticleSys(@NonNull ArrayList<Part> ps, int c, float x, float y)
     {
         myPs = new ArrayList<>();
-        for(Part p : ParticleGen.ps){
+        for(Part p : ps){
             myPs.add(new Part(new Vec2(p.pos.x,p.pos.y),new Vec2(p.v.x,p.v.y),p.r));
         }
 
@@ -57,7 +58,7 @@ public class ParticleSys implements Particleable{
             p.pos.x += p.v.x * delatiem * 0.01f * Math.sin(sin_n);
             p.pos.y += p.v.y * delatiem * 0.01f * Math.sin(sin_n);
 
-            p.r -= delatiem * 0.01f * Math.sin(sin_n);
+            p.r -= delatiem * 0.005f * Math.sin(sin_n);
         }
         sin_n += zl;
     }

@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.view.SurfaceView;
 
 import org.sid.shootin.communication.net.Room;
 import org.sid.shootin.communication.net.Session;
+import org.sid.shootin.particle.Part;
 import org.sid.shootin.particle.ParticleGen;
 import org.sid.shootin.particle.ParticleSys;
 import org.sid.shootin.particle.Particleable;
@@ -80,6 +82,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
     private float hw_bwc; // handler 宽度 和 球的 宽度的差
     private float ballWbf60; // 球宽度的百分之60
     private float handMinY;
+    private float handMaxY;
     private int score_me = 0;
     private int score_his = 0;
     private Vec2 s_me_pos;
@@ -97,6 +100,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     private LinkedList<Particleable> parcelables;
     private ArrayList<Particleable> rm_list;
+
+    private ArrayList<Part> circle_prat;
+    private ArrayList<Part> again_part;
+    private ArrayList<Part> play_part;
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -263,6 +270,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         paint_ball.setColor(0xFF00aaaa);
 
         paint_begin = new Paint();
+        paint_begin.setTypeface(Typeface.createFromAsset(getContext().getAssets(),"font/ttf2.ttf"));
         paint_begin.setAntiAlias(true);
         paint_begin.setDither(true);
         paint_begin.setColor(0xFF00aaaa);
@@ -286,6 +294,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
         ballWbf60 = ballW * 0.6f;
         handMinY = bfy30 + handRect.bottom;
+        handMaxY = bfy90 - handRect.bottom;
 
         score_text_size = bfx30;
 
@@ -306,7 +315,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         fm = paint_begin.getFontMetrics();
         againPos = new Vec2(mid_x,mid_y + fm.descent);
 
-        ParticleGen.Gen(bfx5,1.0f,6.0f,160);
+        circle_prat = ParticleGen.Gen(bfx5,1.0f,6.0f,160);
+        again_part = ParticleGen.Gen(bfx30,bfy5,1.f,5.f,100);
+        play_part = ParticleGen.Gen(bfx66,bfy22,1.f,5.f,300);
+
         parcelables = new LinkedList<>();
         rm_list = new ArrayList<>();
 
@@ -349,7 +361,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                 continue;
             }
             pa.draw(mCanvas);
-            pa.update(delatime);
+            pa.update(16);
         }
         for(Particleable pa : rm_list)
         {
@@ -421,7 +433,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         if(bvpos.x <= 0 && ball_pos.x < bfx5)
             bvpos.x = -bvpos.x;
         if(ball_pos.y + bfx5 > Height){
-            parcelables.add(new ParticleSys(0xFF00aaaa,ball_pos.x,ball_pos.y));
+            parcelables.add(new ParticleSys(circle_prat,0xFF00aaaa,ball_pos.x,ball_pos.y));
             score_his++;
             inThere = false;
             sendScoreChange();
@@ -629,6 +641,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                             Log.e(LT, "Playing");
                             state = State.Playing;
                             sendPlay();
+                            parcelables.add(new ParticleSys(play_part,0xFF00aaaa,begin_pos.x,begin_pos.y));
                         }
                     } else if (state == State.Playing) {
                         hvpos.x = 0.f;
@@ -644,6 +657,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                             inThere = !inThere;
                             state = State.Playing;
                             sendPlayAgain();
+
+                            parcelables.add(new ParticleSys(again_part,0xFF00aaaa,againPos.x,againPos.y));
                         }
                     }
                     break;
@@ -657,6 +672,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
                         handPos.x += hvpos.x;
                         handPos.y += hvpos.y;
                         if (handPos.y < handMinY) {
+                            handPos.y -= hvpos.y;
+                            hvpos.y = 0.f;
+                        }
+                        if(handPos.y > handMaxY){
                             handPos.y -= hvpos.y;
                             hvpos.y = 0.f;
                         }
