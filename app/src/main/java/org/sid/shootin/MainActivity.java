@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -185,6 +186,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                         }
                     }).show();
                     break;
+                case R.id.main_hisotry:
+                    Intent intent = new Intent(MainActivity.this, M2Activity.class);
+                    startActivity(intent);
             }
         }
     };
