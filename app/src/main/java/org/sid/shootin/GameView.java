@@ -17,6 +17,7 @@ import android.view.SurfaceView;
 
 import org.sid.shootin.communication.net.Room;
 import org.sid.shootin.communication.net.Session;
+import org.sid.shootin.particle.Part;
 import org.sid.shootin.particle.ParticleGen;
 import org.sid.shootin.particle.ParticleSys;
 import org.sid.shootin.particle.Particleable;
@@ -97,6 +98,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
 
     private LinkedList<Particleable> parcelables;
     private ArrayList<Particleable> rm_list;
+
+    private ArrayList<Part> circle_prat;
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -306,7 +309,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         fm = paint_begin.getFontMetrics();
         againPos = new Vec2(mid_x,mid_y + fm.descent);
 
-        ParticleGen.Gen(bfx5,1.0f,6.0f,160);
+        circle_prat = ParticleGen.Gen(bfx5,1.0f,6.0f,160);
         parcelables = new LinkedList<>();
         rm_list = new ArrayList<>();
 
@@ -421,7 +424,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,Runn
         if(bvpos.x <= 0 && ball_pos.x < bfx5)
             bvpos.x = -bvpos.x;
         if(ball_pos.y + bfx5 > Height){
-            parcelables.add(new ParticleSys(0xFF00aaaa,ball_pos.x,ball_pos.y));
+            parcelables.add(new ParticleSys(circle_prat,0xFF00aaaa,ball_pos.x,ball_pos.y));
             score_his++;
             inThere = false;
             sendScoreChange();
