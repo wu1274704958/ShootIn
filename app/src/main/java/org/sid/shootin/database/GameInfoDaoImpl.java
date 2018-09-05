@@ -1,6 +1,7 @@
 package org.sid.shootin.database;
 
 import android.content.Intent;
+import android.os.Handler;
 
 import org.sid.shootin.entity.GameInfo;
 
@@ -11,12 +12,14 @@ import io.realm.Realm;
 public class GameInfoDaoImpl extends BaseRealmDaoImpl<GameInfo> {
 
     private static GameInfoDaoImpl instace;
+    private Handler handler;
 
     private GameInfoDaoImpl() {
         super(GameInfo.class);
         this.setRealm(
                 Realm.getDefaultInstance()
         );
+        this.handler = new Handler();
     }
 
     public static GameInfoDaoImpl getInstace() {
@@ -25,9 +28,15 @@ public class GameInfoDaoImpl extends BaseRealmDaoImpl<GameInfo> {
         return instace;
     }
 
-    public void addNewScore(String your, String hier, int yourscore, int hierscore) {
-        GameInfo gameInfo = new GameInfo(UUID.randomUUID().hashCode(), your, hier, yourscore, hierscore);
-        this.insertInto(gameInfo);
+    public void addNewScore(final String your, final String hier, final int yourscore, final int hierscore) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                GameInfo gameInfo = new GameInfo(UUID.randomUUID().hashCode(), your, hier, yourscore, hierscore);
+                GameInfoDaoImpl.this.insertInto(gameInfo).success();
+            }
+        });
+
     }
 
     @Override
