@@ -30,5 +30,19 @@ public class ParticleGen {
         }
         return ps;
     }
+    public static ArrayList<Part> Gen(float w,float h,float min_r,float max_r,int count)
+    {
+        float half_w = w / 2.f;
+        float half_h = h / 2.f;
+        ArrayList<Part> ps = new ArrayList<>();
+        for(int i = 0;i < count;++i) {
+            float x = new Random().nextFloat() * (w) - half_w;
+            float y = new Random().nextFloat() * (h) - half_h;
 
+            float p_r = (new Random().nextFloat() * (max_r - min_r)) + min_r;
+
+            ps.add(new Part(new Vec2(x,y),new Vec2(x,y),p_r));
+        }
+        return ps;
+    }
 }
