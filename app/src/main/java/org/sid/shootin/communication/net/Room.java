@@ -138,7 +138,8 @@ public class Room {
                         onAddChildLin.onAdd(null);
                     Looger.e("time out :" + e.getMessage() + "");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    if (onAddChildLin != null)
+                        onAddChildLin.onAdd(null);
                 } finally {
                     accpetThread = null;
                 }

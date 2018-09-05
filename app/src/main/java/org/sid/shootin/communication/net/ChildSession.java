@@ -53,8 +53,13 @@ public class ChildSession extends Session implements Runnable {
         });
     }
 
+    boolean isStartRecv = false;
+
     @Override
     public void startRecv() {
+        if (isStartRecv)
+            return;
+        isStartRecv = true;
         if (this.theThred != null) {
             theThred.interrupt();
             theThred = null;
@@ -69,6 +74,7 @@ public class ChildSession extends Session implements Runnable {
             if (!this.childSocket.isClosed()) {
                 this.childSocket.close();
             }
+        isStartRecv = false;
     }
 
     public Socket getChildSocket() {
@@ -88,7 +94,7 @@ public class ChildSession extends Session implements Runnable {
     public void run() {
         try {
             InputStream theInput = childSocket.getInputStream();
-            while (!childSocket.isClosed()) {
+            while (!childSocket.isClosed() && isStartRecv) {
                 Message message = Message.readMessage(theInput);
                 if (getReceiveLin() != null) {
                     getReceiveLin().onRevc(message);
@@ -97,6 +103,5 @@ public class ChildSession extends Session implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.e(getClass().getName(), "recv is closed");
     }
 }

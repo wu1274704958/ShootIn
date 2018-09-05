@@ -3,20 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
+    android:background="#3c3f41"
+    android:gravity="center"
+
+    android:padding="10dp">
 
     <Button
         android:id="@+id/gotoPlay"
+        style="@style/BaseButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="@string/start"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@id/gotoPlay"
         android:orientation="horizontal">
 
@@ -52,6 +56,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:weightSum="3">
 
@@ -66,7 +71,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="@string/default_" />
+                android:text=""
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
 
