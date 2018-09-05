@@ -305,11 +305,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 AbsoluteLayout.LayoutParams layoutParams = (AbsoluteLayout.LayoutParams) anmView.getLayoutParams();
                 layoutParams.width = v.getWidth();
                 layoutParams.height = v.getHeight();
-                layoutParams.x = (int) v.getX();
-                layoutParams.y = (int) v.getY();
+                int[] locPos = new int[2];
+                v.getLocationOnScreen(locPos);
+                layoutParams.x = locPos[0];
+                layoutParams.y = locPos[1];
                 anmView.setLayoutParams(layoutParams);
                 anmView.setImageBitmap(anmBitmap);
-                anmView.setBackgroundColor(Color.RED);
                 anmView.setVisibility(View.VISIBLE);
                 anmView.startAnimation(animation);
                 break;
