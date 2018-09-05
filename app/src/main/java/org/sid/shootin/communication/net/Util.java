@@ -103,6 +103,13 @@ public class Util {
         return true;
     }
 
+    public static boolean isWifiOpen(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager == null)
+            return false;
+        return wifiManager.isWifiEnabled();
+    }
+
     public static WifiConfiguration createWifiInfo(String SSID, String password, int type) {
         WifiConfiguration configuration = new WifiConfiguration();
         configuration.allowedAuthAlgorithms.clear();
@@ -145,6 +152,7 @@ public class Util {
         }
         return configuration;
     }
+
     public static String intToIp(int paramInt) {
         return (paramInt & 0xFF) + "." + (0xFF & paramInt >> 8) + "." + (0xFF & paramInt >> 16) + "."
                 + (0xFF & paramInt >> 24);
