@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.sid.shootin">
+
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <application
         android:name=".BaseApplicaction"
         android:allowBackup="true"
@@ -17,6 +27,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".M2Activity"></activity>
+        <activity
+            android:name=".GameActivity"
+            android:label="@string/title_activity_game"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+        <!--<activity-->
+            <!--android:name=".communication.view.LoadRoomActivity"-->
+            <!--android:theme="@style/AppTheme.Dialog" />-->
     </application>
 
 </manifest>
