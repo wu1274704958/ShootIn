@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     private ProgressBar joinLoadingView;
     private View main_setting;
     private View main_history;
+    private ImageView main_titleImage;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,9 +74,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
         setContentView(R.layout.activity_main);
         Bitmap bitmap = null;
+        Bitmap titleImage = null;
         try {
             InputStream inputStream = getAssets().open("background_img_1.jpg");
             bitmap = BitmapFactory.decodeStream(inputStream);
+            inputStream.close();
+            inputStream = getAssets().open("shootin.png");
+            titleImage = BitmapFactory.decodeStream(inputStream);
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         main_setting = findViewById(R.id.main_setting);
         main_setting.setOnClickListener(oc);
         main_history = findViewById(R.id.main_hisotry);
+        main_titleImage = findViewById(R.id.main_titleImage);
+        main_titleImage.setImageBitmap(titleImage);
         bt_join.setOnClickListener(oc);
         bt_creat.setOnClickListener(oc);
         main_history.setOnClickListener(oc);
@@ -99,22 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         scrnWidth = displayMetrics.widthPixels;
         scrnHeight = displayMetrics.heightPixels;
-//        bt_creat.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                bt_creat.getLayoutParams().width = (int) (scrnWidth * btn_width);
-//                bt_creat.setLayoutParams(bt_creat.getLayoutParams());
-//            }
-//        });
-//        bt_join.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                bt_join.getLayoutParams().width = (int) (scrnWidth * btn_width);
-//                bt_join.setLayoutParams(bt_join.getLayoutParams());
-//                ((LinearLayout.LayoutParams) main_setting.getLayoutParams()).leftMargin = (scrnWidth - bt_join.getLayoutParams().width) / 2;
-//                main_setting.setLayoutParams(main_setting.getLayoutParams());
-//            }
-//        });
+        ;
 
         bt_join.setOnTouchListener(this);
         bt_creat.setOnTouchListener(this);
